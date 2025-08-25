@@ -32,7 +32,7 @@ jobs:
     name: Build and Push Docker image
     needs: test
     # Chỉ chạy trên nhánh master hoặc PrePro
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/PrePro'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/PrePro' || github.ref == 'refs/heads/Develop'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -70,7 +70,7 @@ jobs:
   deploy:
     name: Deploy to Windows Server (Self-hosted Runner)
     needs: build-and-push
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/PrePro'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/PrePro' || github.ref == 'refs/heads/Develop'
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
