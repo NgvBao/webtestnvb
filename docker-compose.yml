@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: blade-turbine-frontend:latest
+    container_name: blade-turbine-frontend
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    networks:
+      - blade-turbine-network
+
+networks:
+  blade-turbine-network:
+    driver: bridge
