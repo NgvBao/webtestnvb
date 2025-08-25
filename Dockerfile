@@ -12,7 +12,7 @@ RUN npm ci
 COPY . .
 
 # Build the app
-RUN npm run build
+RUN npm run dev
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine
