@@ -1,7 +1,7 @@
-<<<<<<< HEAD
+
 # Web_blade_turbine_frontend
 GIao diện Website kiểm tra bề mặt cánh turbine gió
-=======
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -71,6 +71,7 @@ export default tseslint.config([
   },
 ])
 ```
+
 Giao diện Document Tree LoginPage
 
   DOCUMENT TREE - LoginPage Component
@@ -90,4 +91,4 @@ Giao diện Document Tree LoginPage
           │         └── LoginInput (input.LoginInput) [type="password"]
           ├── Error message (p) — rendered conditionally if error exists
           └── LoginSubmitButton (button.LoginSubmitButton)
->>>>>>> 86fe7e0 (tests)
+
