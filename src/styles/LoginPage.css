@@ -1,6 +1,4 @@
-/* ================================================
-   0. RESET CƠ BẢN
-   ================================================ */
+/* RESET */
 * {
   margin: 0;
   padding: 0;
@@ -8,42 +6,25 @@
 }
 
 body {
-  font-family: Roboto, Arial, sans-serif; 
+  font-family: Roboto, Arial, sans-serif;
   line-height: 1.5;
   color: #000;
 }
 
-/* ================================================
-   1. LAYOUT CHUNG
-   ================================================ */
-.LoginPage {
+/* LAYOUT */
+.login-page {
   width: 100vw;
   height: 100vh;
-  position: relative;
   background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 }
 
-/* ================================================
-   2. ẢNH NỀN
-   ================================================ */
-.LoginBackgroundImage {
-  width: 838px;
-  height: 457px;
-  position: absolute;
-  left: 102px;
-  top: 311px;
-  object-fit: cover;
-  z-index: 1;
-}
 
-/* ================================================
-   3. FORM LOGIN
-   ================================================ */
-.LoginFormContainer {
-  position: absolute;
-  left: 1279px;
-  top: 379px;
+/* FORM CONTAINER */
+.login-form-container {
   width: 405px;
   min-height: 320px;
   display: flex;
@@ -52,31 +33,28 @@ body {
   z-index: 2;
 }
 
-
-.LoginTitle {
+.login-title {
   text-align: center;
-  color: black;
-  font-size: 48px;
-  font-weight: 700;
+  color: rgb(51, 51, 51);
+  font-size: 35px;
+  font-weight: 600;
   margin-bottom: 40px;
 }
 
-/* ================================================
-   4. INPUT
-   ================================================ */
-.InputFormContainer {
+/* INPUT */
+.input-form-container {
   width: 100%;
   margin-bottom: 30px;
 }
 
-.InputLabel {
+.input-label {
   display: block;
   color: #303030;
   font-size: 15px;
   margin-bottom: 6px;
 }
 
-.InputContainer {
+.input-container {
   width: 100%;
   height: 50px;
   border: 1px solid #999;
@@ -84,7 +62,7 @@ body {
   align-items: center;
 }
 
-.LoginInput {
+.login-input {
   width: 100%;
   height: 100%;
   border: none;
@@ -95,19 +73,24 @@ body {
   background: transparent;
 }
 
-.LoginInput::placeholder {
+.login-input::placeholder {
   color: #000;
   font-size: 15px;
   opacity: 1;
 }
 
-/* ================================================
-   5. NÚT SUBMIT
-   ================================================ */
-.LoginSubmitButton {
+/* ERROR */
+.error-message {
+  color: red;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+/* BUTTONS */
+.login-submit-button {
   width: 405px;
   height: 50px;
-  background: #266EC0;
+  background: #3b5998;
   color: white;
   font-size: 16px;
   font-weight: 600;
@@ -115,19 +98,68 @@ body {
   border: none;
   margin-top: 20px;
   cursor: pointer;
-  border-radius: 0px;
+  border-radius: 0;
   transition: background 0.2s;
 }
 
-.LoginSubmitButton:hover {
-  background: #1e5aa0;
+.login-submit-button:disabled {
+  opacity: 0.6;
+  background: #2d4373;
+  color: white;
+  cursor: not-allowed;
 }
 
-/* ================================================
-   6. RESPONSIVE
-   ================================================ */
+.login-submit-button:not(:disabled):hover {
+  background: #2d4373;
+}
+
+.sign-up-button {
+  width: 100%;
+  height: 50px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  border: 1px solid #000000;
+  margin-top: 20px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background 0.2s;
+}
+
+.sign-up-button:hover {
+  background: #f0f0f0;
+  color: #000000;
+  border: 1px solid #000000;
+}
+.forgot-password-button {
+  background: none;
+  border: none;
+  color: #3b5998;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 10px;
+  text-decoration: underline;
+
+  display: block;   
+  width: 100%;        
+  text-align: left;  
+  padding-left: 0; 
+}
+
+.forgot-password-button:hover {
+  color: #2d4373;
+}
+.forgot-password-button:focus,
+.forgot-password-button:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+/* RESPONSIVE */
 @media (max-width: 1500px) {
-  .LoginBackgroundImage {
+  .login-background-image {
     left: 2vw;
     top: 8vw;
     width: 50vw;
@@ -135,21 +167,20 @@ body {
     height: auto;
     max-height: 457px;
   }
-  .LoginFormContainer {
-    left: auto;
+  .login-form-container {
     right: 2vw;
-    top: 8vw;
     width: 28vw;
     min-width: 300px;
     max-width: 405px;
   }
-  .LoginSubmitButton {
+  .login-submit-button,
+  .sign-up-button {
     width: 100%;
   }
 }
 
 @media (max-width: 1100px) {
-  .LoginBackgroundImage {
+  .login-background-image {
     position: static;
     display: block;
     margin: 0 auto 32px;
@@ -157,32 +188,32 @@ body {
     max-width: 600px;
     height: auto;
   }
-  .LoginFormContainer {
-    position: static;
+  .login-form-container {
     width: 90vw;
     max-width: 400px;
     margin: 0 auto;
   }
-  .LoginTitle {
+  .login-title {
     font-size: 2.2rem;
   }
 }
 
 @media (max-width: 700px) {
-  .LoginPage {
+  .login-page {
     padding: 16px 0;
     height: auto;
     min-height: 100vh;
   }
-  .LoginFormContainer {
+  .login-form-container {
     width: 96vw;
     padding: 0 2vw;
   }
-  .LoginTitle {
+  .login-title {
     font-size: 1.5rem;
     margin-bottom: 24px;
   }
-  .LoginSubmitButton {
+  .login-submit-button,
+  .sign-up-button {
     font-size: 1rem;
     height: 42px;
     margin-top: 12px;

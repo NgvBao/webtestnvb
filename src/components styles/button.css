@@ -1,0 +1,77 @@
+.btn {
+  padding: 4px 8px;
+  font-size: 13px;
+  min-width: 60px;       /* các nút đồng khối */
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Nút detail */
+.btn-detail {
+  background: #3b5998;
+  color: #fff;
+  border: 1px solid #2d4373;
+}
+.btn-detail:hover {
+  background: #2d4373;
+}
+
+/* Nút approve */
+.btn-approve {
+  background: #258642;
+  color: #fff;
+  border: 1px solid #23723b;
+  margin: 0 0 0 1rem;
+}
+.btn-approve:hover {
+  background: #1a502a;
+}
+.btn-approve:disabled {
+  background: #1a502a;
+  color: #fff;
+  border: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Ẩn approve nhưng giữ layout */
+.btn-approve.hidden {
+  visibility: hidden;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+/* Nút cancel */
+.btn-cancel {
+  background: #e0e0e0;
+  border: none;
+  color: #000;
+}
+
+/* Nút submit */
+.btn-submit {
+  background: #3b5998;
+  color: #fff;
+  border: none;
+}
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Nút delete */
+.btn-delete {
+  background-color: #dd0000;
+  color: #fff;
+  border: 1px solid #aa0404;
+  outline: none; /* bỏ viền focus mặc định */
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background-color: #aa0404;
+}

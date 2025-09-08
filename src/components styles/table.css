@@ -1,0 +1,59 @@
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+/* ================== Table ================== */
+.user-table {
+  min-width: 900px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.user-table th,
+.user-table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+  background: #fff;
+}
+
+.user-table th {
+  font-weight: 600;
+  text-align: left;
+  background: #f1f1f1;
+}
+
+.user-table th:last-child,
+.user-table td:last-child {
+  border-right: 1px solid #ccc;
+}
+
+/* Hover row */
+.user-table tbody tr:hover {
+  background-color: #e6f2ff;
+}
+
+/* No data */
+td.no-data {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+  padding: 15px 0;
+}
+
+.status-active {
+  color: #219744;
+  font-weight: 600;
+}
+
+.status-inactive {
+  color: #DD0000;
+  font-weight: 600;
+}
