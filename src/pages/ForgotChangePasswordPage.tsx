@@ -1,5 +1,5 @@
 import "../styles/ForgotChangePasswordPage.css";
-
+//
 type ForgotChangePasswordPageProps = {
   onSave: () => void;
   newPassword: string;
