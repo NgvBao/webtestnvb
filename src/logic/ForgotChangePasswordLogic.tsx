@@ -38,9 +38,8 @@ function ForgotChangePasswordLogic() {
         // 👉 nếu muốn redirect luôn:
         // window.location.href = "/login";
       }
-    } catch (err) {
+    } catch {
       setError("Có lỗi kết nối. Vui lòng thử lại sau.");
-    } finally {
     }
   };
 

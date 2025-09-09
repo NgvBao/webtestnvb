@@ -10,6 +10,20 @@ type User = {
   status: "Active" | "Inactive";
 };
 
+type ApiUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  is_active: boolean;
+  is_approved: boolean;
+};
+
+type ApiResponse = {
+  message: string;
+};
+
 const BACKEND_URL = "http://localhost:8000"; // backend full URL
 
 const UserManagementLogic: React.FC = () => {
@@ -38,13 +52,13 @@ const UserManagementLogic: React.FC = () => {
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const data: ApiUser[] = await res.json();
 
       const filtered = data.filter(
-        (u: any) => u.role === "user" && u.is_active === true
+        (u) => u.role === "user" && u.is_active === true
       );
 
-      const mapped: User[] = filtered.map((u: any) => ({
+      const mapped: User[] = filtered.map((u) => ({
         id: u.id,
         name: u.name,
         email: u.email,
@@ -54,9 +68,13 @@ const UserManagementLogic: React.FC = () => {
       }));
 
       setUsers(mapped);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Fetch users error:", err);
-      alert(err.message || "Failed to fetch users");
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("Failed to fetch users");
+      }
     }
   };
 
@@ -76,13 +94,17 @@ const UserManagementLogic: React.FC = () => {
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const data: ApiResponse = await res.json();
 
       alert(data.message);
       fetchUsers();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Approve error:", err);
-      alert(err.message || "Approve failed");
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("Approve failed");
+      }
     } finally {
       setApproveLoading(null);
     }
@@ -104,13 +126,17 @@ const UserManagementLogic: React.FC = () => {
       );
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const data: ApiResponse = await res.json();
 
       alert(data.message);
       fetchUsers();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Delete error:", err);
-      alert(err.message || "Delete failed");
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("Delete failed");
+      }
     } finally {
       setDeleteLoading(null);
     }

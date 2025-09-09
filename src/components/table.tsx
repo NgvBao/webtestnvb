@@ -3,9 +3,9 @@ import React from "react";
 import "../components styles/table.css";
 
 export type Column<T> = {
-  key: keyof T | string;
+  key: keyof T; // chỉ cho phép key trong T
   header: string;
-  size?: number; // tỉ lệ, vd: 0.2 = 20%
+  size?: number;
   className?: string;
   render?: (row: T, index: number) => React.ReactNode;
 };
@@ -48,7 +48,9 @@ function GenericTable<T extends { id: string }>({ data, columns }: GenericTableP
                     className={col.className}
                     style={col.size ? { width: `${col.size * 100}%` } : {}}
                   >
-                    {col.render ? col.render(row, index) : (row as any)[col.key]}
+                    {col.render
+                      ? col.render(row, index)
+                      : (row[col.key] as React.ReactNode)}
                   </td>
                 ))}
               </tr>

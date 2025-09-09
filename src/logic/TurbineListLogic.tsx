@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import TurbineListPage from "../pages/TurbineListPage";
 
 type Turbine = {
@@ -11,7 +10,6 @@ type Turbine = {
 };
 
 export default function WrapperTurbine() {
-  const navigate = useNavigate();
   const [turbines, setTurbines] = useState<Turbine[]>([
     {
       id: "1",

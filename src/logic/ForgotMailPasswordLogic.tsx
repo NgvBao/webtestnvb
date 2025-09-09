@@ -32,7 +32,7 @@ function ForgotMailPasswordLogic() {
       } else {
         setError(data.message || "Something went wrong");
       }
-    } catch (err) {
+    } catch {
       setError("Network error, please try again.");
     } finally {
       setLoading(false);
