@@ -54,82 +54,81 @@ const handleRowClick = (ses: Session) => {
 
   return (
     <SessionsListPage
-      sessions={filteredSessions}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      // --- Create
-      showCreateModal={showCreateModal}
-      newName={newName}
-      setNewName={setNewName}
-      onCreateClick={() => setShowCreateModal(true)}
-      onCancelCreate={() => setShowCreateModal(false)}
-      onRowClick={handleRowClick}   // ✅ click row → chuyển Dashboard
-      onOpenDetail={setDetailData}  // ✅ click "Detail" button → mở modal
-      onCreateSubmit={(name) => {
-        const newSes: Session = {
-          id: Date.now().toString(),
-          name,
-          created: new Date().toISOString().slice(0, 10),
-          images: 0,
-          note: "No note yet",
-        };
-        setSessions([...sessions, newSes]);
-        setShowCreateModal(false);
-        setNewName("");
-      }}
-      // --- Detail modal
-      detailData={detailData}
-      onOpenDetail={(ses) => setDetailData(ses)}
-      onDetailChange={(ses) => setDetailData(ses)}
-      onCloseDetail={() => setDetailData(null)}
-      onSaveDetail={() => {
-        if (detailData) {
-          setSessions(
-            sessions.map((s) =>
-              s.id === detailData.id ? detailData : s
-            )
-          );
-        }
-        setDetailData(null);
-      }}
-      onDeleteDetail={() => {
-        if (detailData) {
-          setSessions(sessions.filter((s) => s.id !== detailData.id));
-        }
-        setDetailData(null);
-      }}
-      // --- Note view modal
-      viewNoteData={viewNoteData}
-      onOpenNoteView={(ses) => setViewNoteData(ses)}
-      onCloseNoteView={() => setViewNoteData(null)}
-      onEditNote={() => {
-        if (viewNoteData) {
-          setEditNoteData(viewNoteData);
-          setViewNoteData(null);
-        }
-      }}
-      // --- Note edit modal
-      editNoteData={editNoteData}
-      onCloseNoteEdit={() => setEditNoteData(null)}
-      onSaveNote={(newNote) => {
-        if (editNoteData) {
-          const updated = { ...editNoteData, note: newNote };
-          setSessions(
-            sessions.map((s) => (s.id === updated.id ? updated : s))
-          );
-          setEditNoteData(null);
-        }
-      }}
-      onDeleteNote={() => {
-        if (editNoteData) {
-          const updated = { ...editNoteData, note: "" };
-          setSessions(
-            sessions.map((s) => (s.id === updated.id ? updated : s))
-          );
-          setEditNoteData(null);
-        }
-      }}
-    />
+  sessions={filteredSessions}
+  searchTerm={searchTerm}
+  setSearchTerm={setSearchTerm}
+  // --- Create
+  showCreateModal={showCreateModal}
+  newName={newName}
+  setNewName={setNewName}
+  onCreateClick={() => setShowCreateModal(true)}
+  onCancelCreate={() => setShowCreateModal(false)}
+  onRowClick={handleRowClick}
+  onCreateSubmit={(name) => {
+    const newSes: Session = {
+      id: Date.now().toString(),
+      name,
+      created: new Date().toISOString().slice(0, 10),
+      images: 0,
+      note: "No note yet",
+    };
+    setSessions([...sessions, newSes]);
+    setShowCreateModal(false);
+    setNewName("");
+  }}
+  // --- Detail modal
+  detailData={detailData}
+  onOpenDetail={(ses) => setDetailData(ses)}   // ✅ chỉ giữ 1 lần thôi
+  onDetailChange={(ses) => setDetailData(ses)}
+  onCloseDetail={() => setDetailData(null)}
+  onSaveDetail={() => {
+    if (detailData) {
+      setSessions(
+        sessions.map((s) =>
+          s.id === detailData.id ? detailData : s
+        )
+      );
+    }
+    setDetailData(null);
+  }}
+  onDeleteDetail={() => {
+    if (detailData) {
+      setSessions(sessions.filter((s) => s.id !== detailData.id));
+    }
+    setDetailData(null);
+  }}
+  // --- Note view modal
+  viewNoteData={viewNoteData}
+  onOpenNoteView={(ses) => setViewNoteData(ses)}
+  onCloseNoteView={() => setViewNoteData(null)}
+  onEditNote={() => {
+    if (viewNoteData) {
+      setEditNoteData(viewNoteData);
+      setViewNoteData(null);
+    }
+  }}
+  // --- Note edit modal
+  editNoteData={editNoteData}
+  onCloseNoteEdit={() => setEditNoteData(null)}
+  onSaveNote={(newNote) => {
+    if (editNoteData) {
+      const updated = { ...editNoteData, note: newNote };
+      setSessions(
+        sessions.map((s) => (s.id === updated.id ? updated : s))
+      );
+      setEditNoteData(null);
+    }
+  }}
+  onDeleteNote={() => {
+    if (editNoteData) {
+      const updated = { ...editNoteData, note: "" };
+      setSessions(
+        sessions.map((s) => (s.id === updated.id ? updated : s))
+      );
+      setEditNoteData(null);
+    }
+  }}
+/>
   );
 }
 export default SessionsListLogic;
