@@ -5,6 +5,7 @@ import App from './App'
 describe('App', () => {
   it('renders without crashing', async () => {
     render(<App />)
-    expect(await screen.findByRole('main')).toBeInTheDocument()
+    // kiểm tra có heading "Login"
+    expect(await screen.findByRole('heading', { name: /login/i })).toBeInTheDocument()
   })
 })
