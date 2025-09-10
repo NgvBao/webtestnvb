@@ -23,7 +23,7 @@ function OtpSignupLogic() {
 
     setLoadingSubmit(true);
     try {
-      const response = await fetch("http://localhost:8000/auth/verify-registration", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/verify-registration", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,7 +61,7 @@ function OtpSignupLogic() {
     setLoadingResend(true);
 
     try {
-      const response = await fetch("http://localhost:8000/auth/resend-registration-otp", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-registration-otp", {
         credentials: "include",
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },

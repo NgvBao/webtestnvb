@@ -28,7 +28,7 @@ function OtpLoginLogic() {
     setLoadingSubmit(true);
 
     try {
-      const response = await fetch("http://localhost:8000/auth/verify-otp", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -68,7 +68,7 @@ function OtpLoginLogic() {
     setLoadingResend(true);
 
     try {
-      const response = await fetch("http://localhost:8000/auth/resend-otp", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-otp", {
         method: "POST",
         credentials: "include",
       });

@@ -20,7 +20,7 @@ function ForgotChangePasswordLogic() {
       return;
     }
     try {
-      const response = await fetch("http://localhost:8000/auth/reset-password", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // gửi cookie reset_id

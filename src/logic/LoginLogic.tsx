@@ -16,7 +16,7 @@ function LoginLogic() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/auth/login", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -31,7 +31,7 @@ function LoginLogic() {
         navigate("/otp-login");
 
         // gửi OTP/email async (fire-and-forget)
-        fetch("http://localhost:8000/auth/resend-otp", {
+        fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-otp", {
           method: "POST",
           credentials: "include",
         }).catch((err) => console.error("Resend OTP failed:", err));

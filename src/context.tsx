@@ -24,7 +24,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8000/auth/me", { credentials: "include" })
+    fetch("https://fastapi-turbine-62vm.onrender.com/auth/me", { credentials: "include" })
       .then(res => {
         if (!res.ok) throw new Error("Not authenticated");
         return res.json();

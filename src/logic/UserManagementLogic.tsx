@@ -24,7 +24,7 @@ type ApiResponse = {
   message: string;
 };
 
-const BACKEND_URL = "http://localhost:8000"; // backend full URL
+const BACKEND_URL = "https://fastapi-turbine-62vm.onrender.com"; // backend full URL
 
 const UserManagementLogic: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);

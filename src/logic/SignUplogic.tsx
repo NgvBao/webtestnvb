@@ -19,7 +19,7 @@ function SignUpLogic() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/auth/register", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -40,7 +40,7 @@ function SignUpLogic() {
         navigate("/otp-sign-up", { state: { email, phone } });
 
         // gửi lại OTP async (fire-and-forget)
-        fetch("http://localhost:8000/auth/resend-registration-otp", {
+        fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-registration-otp", {
           method: "POST",
           credentials: "include",
         }).catch((err) => console.error("Resend registration OTP failed:", err));
