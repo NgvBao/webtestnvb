@@ -2,8 +2,11 @@
 import React from "react";
 import "../components styles/table.css";
 
+// Cho phép dùng key của T + thêm "index" và "actions"
+export type ColumnKey<T> = keyof T | "index" | "actions";
+
 export type Column<T> = {
-  key: keyof T; // chỉ cho phép key trong T
+  key: ColumnKey<T>;
   header: string;
   size?: number;
   className?: string;
@@ -15,7 +18,10 @@ export type GenericTableProps<T> = {
   columns: Column<T>[];
 };
 
-function GenericTable<T extends { id: string }>({ data, columns }: GenericTableProps<T>) {
+function GenericTable<T extends { id: string }>({
+  data,
+  columns,
+}: GenericTableProps<T>) {
   return (
     <div className="table-container">
       <table className="user-table">
@@ -50,7 +56,11 @@ function GenericTable<T extends { id: string }>({ data, columns }: GenericTableP
                   >
                     {col.render
                       ? col.render(row, index)
-                      : (row[col.key] as React.ReactNode)}
+                      : col.key === "index"
+                      ? index + 1
+                      : col.key === "actions"
+                      ? null
+                      : (row[col.key as keyof T] as React.ReactNode)}
                   </td>
                 ))}
               </tr>

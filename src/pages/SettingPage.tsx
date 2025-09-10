@@ -13,6 +13,8 @@ type SettingPageProps = {
   title?: string;
   error?: string;
   info?: string;
+  loadingSave: boolean;     // 🟢 thêm
+  loadingLogout: boolean;   // 🟢 thêm
 };
 
 function SettingPage({
