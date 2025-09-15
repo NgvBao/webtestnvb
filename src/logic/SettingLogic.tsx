@@ -21,7 +21,7 @@ function SettingLogic() {
     setLoadingLogout(true);
     setError(undefined);
     try {
-      const res = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/logout", {
+      const res = await fetch("https://fastapi-turbine-62vm.onrender.com/api/v1/auth/logout", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -59,7 +59,7 @@ function SettingLogic() {
     setInfo(undefined);
 
     try {
-      const res = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/change-password", {
+      const res = await fetch("https://fastapi-turbine-62vm.onrender.com/api/v1/auth/change-password", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
