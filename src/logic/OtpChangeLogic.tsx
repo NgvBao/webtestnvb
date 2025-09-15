@@ -16,7 +16,7 @@ function OtpChangeLogic() {
     setLoadingSubmit(true);
 
     try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/verify-reset-otp", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/api/v1/auth/verify-reset-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // gửi cookie reset_id
@@ -49,7 +49,7 @@ function OtpChangeLogic() {
     setLoadingResend(true);
 
     try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-reset-otp", {
+      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/api/v1/auth/resend-reset-otp", {
         method: "POST",
         credentials: "include",
       });
