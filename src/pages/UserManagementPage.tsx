@@ -57,21 +57,24 @@ function UserManagementPage({
       size: 0.15,
       className: "action-cell",
       render: (user) => (
-        <>
-          <Button
-            label="Delete"
-            variant="delete"
-            onClick={() => onDeleteClick(user)}
-            loading={deleteLoading === user.id}
-          />
-          <Button
-            label="Approve"
-            variant="approve"
-            hidden={user.status === "Active"}
-            onClick={() => onApproveClick(user)}
-            loading={approveLoading === user.id}
-          />
-        </>
+      <>
+        <Button
+          variant="delete"
+          onClick={() => onDeleteClick(user)}
+          loading={deleteLoading === user.id}
+          >
+            Delete
+        </Button>
+        <Button
+          variant="approve"
+          hidden={user.status === "Active"}
+          onClick={() => onApproveClick(user)}
+          loading={approveLoading === user.id}
+        >
+          Approve
+        </Button>
+      </>
+
       ),
     },
   ];

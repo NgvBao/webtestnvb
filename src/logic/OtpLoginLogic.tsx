@@ -1,11 +1,12 @@
-// OtpLoginLogic.tsx
+// src/logic/OtpLoginLogic.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OtpPage from "../pages/OtpPage";
-import { useUser } from "../context"; // hook context user
+import { useUser, AUTH_SESSION_STORAGE_KEY } from "../context";
+import { authServiceLong } from "../api/auth/authService"; // ✅ giữ đúng path
 
 function OtpLoginLogic() {
-  const { setUser } = useUser(); // để cập nhật user sau OTP login
+  const { setUser } = useUser();
   const navigate = useNavigate();
 
   const [otp, setOtp] = useState("");
@@ -14,76 +15,63 @@ function OtpLoginLogic() {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [loadingResend, setLoadingResend] = useState(false);
 
-  // Submit OTP
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setInfo("");
 
-    if (!otp) {
+    const code = otp.trim();
+    if (!code) {
       setError("Vui lòng nhập OTP.");
       return;
     }
 
     setLoadingSubmit(true);
-
     try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ otp }),
+      const res = await authServiceLong.verifyOtp({ otp: code });
+
+      if (!res.ok) {
+        setError(res.message || "Mã OTP không hợp lệ hoặc đã hết hạn.");
+        return;
+      }
+
+      // res.ok === true → LoginSuccessResponse { message, user }
+      const user = res.data.user;
+      if (!user) {
+        setError("Không thể xác thực người dùng.");
+        return;
+      }
+
+      // Đánh dấu đã đăng nhập sau khi OTP hợp lệ
+      sessionStorage.setItem(AUTH_SESSION_STORAGE_KEY, "true");
+      setUser({
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        // (tuỳ schema context có hỗ trợ thêm) email: user.email, phone: user.phone
       });
 
-      const data = await response.json().catch(() => ({}));
-      setLoadingSubmit(false);
-
-      if (response.ok) {
-        // backend trả về thông tin user
-        const userData = data.user;
-        if (userData) {
-          setUser(userData); // cập nhật context user
-          setInfo(data.message || "Đăng nhập thành công!");
-          setError("");
-          navigate("/dashboard"); // chuyển thẳng sang dashboard
-        } else {
-          setError("Không thể xác thực user.");
-        }
-      } else if (response.status === 401 || response.status === 400) {
-        setError(data.detail?.message || "Mã OTP không hợp lệ hoặc hết hạn");
-      } else {
-        setError("Có lỗi xảy ra, vui lòng thử lại");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Không thể kết nối tới server");
+      setInfo(res.data.message || res.message || "Đăng nhập thành công!");
+      navigate("/dashboard");
+    } finally {
       setLoadingSubmit(false);
     }
   };
 
-  // Resend OTP
   const handleResend = async () => {
     setError("");
     setInfo("");
     setLoadingResend(true);
-
     try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-otp", {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await authServiceLong.resendOtp();
 
-      const data = await response.json().catch(() => ({}));
-      setLoadingResend(false);
-
-      if (response.ok) {
-        setInfo(data.message || "OTP đã gửi lại thành công");
-      } else {
-        setError(data.detail?.message || "Không thể gửi lại OTP");
+      if (!res.ok) {
+        setError(res.message || "Không thể gửi lại OTP.");
+        return;
       }
-    } catch (err) {
-      console.error(err);
-      setError("Không thể kết nối tới server");
+
+      setInfo(res.data.message || res.message || "OTP đã được gửi lại.");
+    } finally {
       setLoadingResend(false);
     }
   };

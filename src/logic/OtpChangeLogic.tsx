@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import OtpPage from "../pages/OtpPage";
+import { useNavigate } from "react-router-dom";
+import { authServiceLong } from "../api/auth/authService"; // ✅ giữ đúng path
 
 function OtpChangeLogic() {
   const [otp, setOtp] = useState("");
@@ -8,63 +10,52 @@ function OtpChangeLogic() {
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [loadingResend, setLoadingResend] = useState(false);
 
-  // Gọi API xác thực OTP
+  const navigate = useNavigate();
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(undefined);
     setInfo(undefined);
     setLoadingSubmit(true);
 
-    try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/verify-reset-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // gửi cookie reset_id
-        body: JSON.stringify({ otp }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.detail?.message || "Xác thực OTP thất bại");
-      } else {
-        if (data.status === "expired") {
-          setInfo(data.message); // "Mã OTP đã hết hạn, đã gửi mới"
-        } else {
-          setInfo(data.message); // "Xác thực OTP thành công"
-          // 👉 điều hướng qua trang đổi mật khẩu
-          window.location.href = "/change-password";
-        }
-      }
-    } catch {
-      setError("Có lỗi xảy ra, vui lòng thử lại.");
-    } finally {
+    const code = otp.trim();
+    if (!code) {
+      setError("Vui long nhap ma OTP.");
       setLoadingSubmit(false);
+      return;
     }
+
+    // ✅ Service không ném lỗi: luôn trả ApiResult
+    const res = await authServiceLong.verifyResetOtp({ otp: code });
+
+    if (!res.ok) {
+      setError(res.message || "Xac thuc OTP that bai.");
+      setLoadingSubmit(false);
+      return;
+    }
+
+    // ✅ SuccessResponse chỉ có { message }
+    setInfo(res.data.message || "Xac thuc OTP thanh cong.");
+    navigate("/change-password"); // dùng router thay vì window.location
+    setLoadingSubmit(false);
   };
 
-  // Gọi API resend OTP
   const handleResend = async () => {
     setError(undefined);
     setInfo(undefined);
     setLoadingResend(true);
 
-    try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-reset-otp", {
-        method: "POST",
-        credentials: "include",
-      });
+    const res = await authServiceLong.resendResetOtp();
 
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.detail?.message || "Gửi lại OTP thất bại");
-      } else {
-        setInfo(data.message || "OTP mới đã được gửi đến email.");
-      }
-    } catch {
-      setError("Có lỗi xảy ra khi gửi lại OTP.");
-    } finally {
+    if (!res.ok) {
+      setError(res.message || "Gui lai OTP that bai.");
       setLoadingResend(false);
+      return;
     }
+
+    // ✅ SuccessResponse chỉ có { message }
+    setInfo(res.data.message || "OTP moi da duoc gui.");
+    setLoadingResend(false);
   };
 
   return (

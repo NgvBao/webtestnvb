@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SettingPage from "../pages/SettingPage";
-import { useUser } from "../context"; // import hook context user
+import { useUser, AUTH_SESSION_STORAGE_KEY } from "../context";
+import { authServiceLong } from "../api/auth/authService"; // ✅ giữ đúng path
 
 function SettingLogic() {
   const [current, setCurrent] = useState("");
@@ -13,37 +14,32 @@ function SettingLogic() {
   const [loadingSave, setLoadingSave] = useState(false);
   const [loadingLogout, setLoadingLogout] = useState(false);
 
-  const { setUser } = useUser(); // dùng để reset user khi logout
+  const { setUser } = useUser();
   const navigate = useNavigate();
 
-  // Logout
   const handleLogout = async () => {
     setLoadingLogout(true);
     setError(undefined);
-    try {
-      const res = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
+    setInfo(undefined);
 
-      const data = await res.json();
-      setLoadingLogout(false);
+    // ✅ Service không ném lỗi: luôn trả ApiResult
+    const res = await authServiceLong.logout();
 
-      if (res.ok) {
-        setUser(null); // reset user context
-        navigate("/login"); // điều hướng về login
-      } else {
-        setError(data.message || "Logout failed");
-      }
-    } catch (err) {
-      console.error("❌ Error logout:", err);
-      setError("Network error");
+    if (!res.ok) {
+      setError(res.message || "Logout failed");
       setLoadingLogout(false);
+      return;
     }
+
+    // ✅ SuccessResponse chỉ có { message }
+    setInfo(res.data.message || "Logged out");
+    sessionStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+    setUser(null);
+    navigate("/login", { replace: true });
+
+    setLoadingLogout(false);
   };
 
-  // Save password
   const handleSave = async () => {
     if (!current || !newPass || !confirm) {
       setError("Please fill in all fields");
@@ -58,30 +54,22 @@ function SettingLogic() {
     setError(undefined);
     setInfo(undefined);
 
-    try {
-      const res = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/change-password", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ current_password: current, new_password: newPass }),
-      });
+    const res = await authServiceLong.changePassword({
+      current_password: current,
+      new_password: newPass,
+    });
 
-      const data = await res.json();
+    if (!res.ok) {
+      setError(res.message || "Change password failed");
       setLoadingSave(false);
-
-      if (res.ok) {
-        setInfo("Password changed successfully");
-        setCurrent("");
-        setNewPass("");
-        setConfirm("");
-      } else {
-        setError(data.message || "Change password failed");
-      }
-    } catch (err) {
-      console.error("❌ Error change password:", err);
-      setError("Network error");
-      setLoadingSave(false);
+      return;
     }
+
+    setInfo(res.data.message || "Password changed successfully");
+    setCurrent("");
+    setNewPass("");
+    setConfirm("");
+    setLoadingSave(false);
   };
 
   return (

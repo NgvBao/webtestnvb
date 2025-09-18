@@ -1,14 +1,15 @@
+/* ====== GIỮ NGUYÊN PHẦN CŨ CỦA BẠN (đã có) ====== */
 .sidebar {
   width: 220px;
   height: 100vh;
-  position: fixed; /* luôn cố định bên trái */
+  position: fixed;
   top: 0;
   left: 0;
   background: #fff;
   border-right: 1px solid #ccc;
   padding-top: 8px;
   box-sizing: border-box;
-  
+  padding-bottom: 84px;
 }
 
 .menu {
@@ -25,6 +26,7 @@
   color: #333;
   font-size: 13px;
   cursor: pointer;
+  outline: none;
 }
 
 .menu li.active {
@@ -34,10 +36,10 @@
 
 .menu li:hover {
   background: rgb(47, 69, 107);
-    color: white;
+  color: white;
 }
-/* Mobile: thu thành cục vuông */
-/* Mobile: chia cột */
+
+/* Mobile: thu thành cục vuông & chia cột */
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
@@ -52,8 +54,8 @@
 
   .menu {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 cột đều nhau */
-    gap: 1px; /* khoảng cách giữa các ô */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
   }
 
   .menu li {
@@ -62,4 +64,258 @@
     text-align: center;
     font-size: 12px;
   }
+}
+
+/* ====== Footer ====== */
+.sidebar-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 12px;
+  border-top: 1px solid #ccc;
+  background: #fff;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.user-mini {
+  font-size: 12px;
+  color: #333;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 12px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 11px;
+  color: #555;
+}
+
+.btn-logout--compact {
+  width: auto;
+  padding: 5px 10px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #DD0000;
+  border-radius: 0;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-logout--compact:disabled { opacity: 0.6; cursor: default; }
+
+@media (max-width: 768px) {
+  .sidebar-footer { display: none; }
+}
+
+/* ====== Submenu Manage (cải tiến) ====== */
+.menu li.has-sub {
+  position: relative;
+  user-select: none;
+  padding: 0;               /* để button chiếm full vùng click */
+  border-bottom: 1px solid #ddd;
+}
+
+/* Nút tiêu đề submenu: dùng button cho a11y */
+.submenu-title {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: 0;
+  padding: 6px 12px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.submenu-title:focus-visible {
+  outline: 2px dashed #3b5998;
+  outline-offset: 2px;
+  background: #f5f7fb;
+}
+
+/* caret vẽ bằng before để dễ animate */
+.caret {
+  width: 10px;
+  height: 10px;
+  position: relative;
+  display: inline-block;
+}
+.caret::before {
+  content: "▸";
+  display: block;
+  transform-origin: center;
+  transition: transform 160ms ease;
+  font-size: 12px;
+  line-height: 1;
+}
+.menu li.has-sub.open > .submenu-title .caret::before {
+  transform: rotate(90deg);
+}
+
+/* Khối submenu: accordion + hover dropdown (desktop) */
+.submenu {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0 6px 0;
+  background: #fff;
+
+  /* Accordion animation */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 180ms ease, opacity 180ms ease;
+
+  /* Viền trái nhẹ để định hướng */
+  border-left: 2px solid #3b5998;
+}
+
+/* Khi mở bằng click (mobile/desktop) */
+.menu li.has-sub.open > .submenu {
+  max-height: 500px; /* đủ cho 3–6 item */
+  opacity: 1;
+}
+
+/* Desktop: hover cũng bung như dropdown */
+@media (hover: hover) and (min-width: 769px) {
+  .menu li.has-sub:hover > .submenu {
+    max-height: 500px;
+    opacity: 1;
+  }
+}
+
+/* Item trong submenu */
+.submenu li {
+  padding: 6px 12px 6px 24px;  /* thụt trái nhẹ */
+  border: 0;
+  font-weight: normal;
+  font-size: 12px;
+  color: #333;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+}
+
+/* điểm nhấn nhỏ đầu dòng */
+.submenu li .dot {
+  width: 4px;
+  height: 4px;
+  display: inline-block;
+  margin-right: 6px;
+  border: 1px solid #3b5998;
+  background: #fff;
+}
+
+.submenu li:hover {
+  background: rgb(47, 69, 107);
+  color: #fff;
+}
+
+.submenu li.active {
+  background: #3b5998;
+  color: #fff;
+}
+
+/* Focus cho điều hướng bàn phím trong submenu */
+.submenu li:focus-visible {
+  outline: 2px dashed #3b5998;
+  outline-offset: -2px;
+}
+
+/* Tô nhẹ item cha khi đang ở route con (tuỳ chọn) */
+.menu li.active-parent {
+  background: #f5f7fb;
+}
+
+/* Dropdown “thả” ra ngoài trên desktop (tùy chọn: bật nếu muốn nổi hẳn) */
+/*
+@media (hover: hover) and (min-width: 769px) {
+  .menu li.has-sub {
+    position: relative;
+  }
+  .menu li.has-sub > .submenu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 200px;
+    border: 1px solid #ddd;
+    border-left: 2px solid #3b5998;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+}
+*/
+/* === Reset bo góc & viền đen khi hover/nhấn trong SIDEBAR === */
+
+/* 1) Xóa bo góc toàn bộ phần tử bên trong .sidebar */
+.sidebar * {
+  border-radius: 0 !important;
+}
+
+/* 2) Tắt highlight khi tap trên mobile */
+.sidebar, .sidebar * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 3) Vô hiệu hoá outline mặc định khi focus/active/hover (tránh viền đen),
+      nhưng vẫn giữ focus-visible (đã định nghĩa ở trên) cho a11y */
+.sidebar *:focus,
+.sidebar *:active,
+.sidebar *:hover {
+  outline: none;               /* tránh viền đen mặc định */
+  box-shadow: none;            /* tránh glow mặc định trình duyệt */
+}
+
+/* 4) Giữ focus-visible tùy biến (dashed xanh) nếu dùng bàn phím */
+.sidebar *:focus-visible {
+  outline: 2px dashed #3b5998; /* bạn đã set ở trên cho .submenu-title & .submenu li */
+  outline-offset: 2px;
+}
+
+/* 5) Nút & button trong sidebar: loại bỏ style mặc định của trình duyệt */
+.sidebar button,
+.sidebar .submenu-title,
+.sidebar .btn-logout--compact {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border-radius: 0 !important; /* nhấn mạnh lần nữa cho chắc */
+  box-shadow: none !important;
+}
+
+/* 6) Sửa trường hợp Firefox thêm border trong content của button */
+.sidebar button::-moz-focus-inner,
+.sidebar .submenu-title::-moz-focus-inner,
+.sidebar .btn-logout--compact::-moz-focus-inner {
+  border: 0;
+}
+
+/* 7) Tránh viền đậm khi :active trên một số trình duyệt */
+.sidebar button:active,
+.sidebar .submenu-title:active,
+.sidebar .btn-logout--compact:active,
+.sidebar .menu li:active,
+.sidebar .submenu li:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* (Tùy chọn) Nếu bạn thấy border-bottom của .menu li đậm lên khi hover,
+   có thể khoá màu nó lại để không “đậm” hơn do anti-aliasing */
+.menu li,
+.submenu li {
+  border-color: #ddd; /* khoá màu viền */
 }

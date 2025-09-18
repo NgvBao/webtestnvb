@@ -1,6 +1,8 @@
+// src/logic/LoginLogic.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginPage from "../pages/LoginPage";
+import { authServiceLong } from "../api/auth/authService"; // ✅ giữ đúng path
 
 function LoginLogic() {
   const [username, setUsername] = useState("");
@@ -15,35 +17,31 @@ function LoginLogic() {
     setError("");
     setLoading(true);
 
-    try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ identifier: username, password }),
-      });
-
-      const data = await response.json().catch(() => ({}));
+    const identifier = username.trim();
+    if (!identifier || !password) {
+      setError("Vui lòng nhập đầy đủ tài khoản và mật khẩu.");
       setLoading(false);
+      return;
+    }
 
-      if (response.ok) {
-        // redirect ngay
-        navigate("/otp-login");
+    try {
+      // ✅ Service không throw; luôn trả ApiResult
+      const loginRes = await authServiceLong.login({ identifier, password });
 
-        // gửi OTP/email async (fire-and-forget)
-        fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-otp", {
-          method: "POST",
-          credentials: "include",
-        }).catch((err) => console.error("Resend OTP failed:", err));
-
-      } else if (response.status === 401 || response.status === 403) {
-        setError(data.detail?.message || "Đăng nhập không thành công");
-      } else {
-        setError("Có lỗi xảy ra, vui lòng thử lại.");
+      if (!loginRes.ok) {
+        setError(loginRes.message || "Có lỗi xảy ra, vui lòng thử lại.");
+        return;
       }
-    } catch (err) {
-      console.error(err);
-      setError("Không thể kết nối tới server");
+
+      // ✅ Theo DTO: LoginPendingResponse chỉ có { message }, chuyển sang màn OTP
+      navigate("/otp-login", { state: { identifier } });
+
+      // (Tuỳ chọn) gửi lại OTP ngay sau khi điều hướng
+      const resendRes = await authServiceLong.resendOtp();
+      if (!resendRes.ok) {
+        console.error("Resend OTP failed:", resendRes.message);
+      }
+    } finally {
       setLoading(false);
     }
   };

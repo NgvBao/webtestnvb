@@ -1,10 +1,12 @@
+// src/logic/OtpSignupLogic.tsx
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import OtpPage from "../pages/OtpPage";
+import { authServiceLong } from "../api/auth/authService"; // ✅ giữ đúng path
 
 function OtpSignupLogic() {
-  const location = useLocation();
   const navigate = useNavigate();
+
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -16,41 +18,26 @@ function OtpSignupLogic() {
     setError("");
     setInfo("");
 
-    if (!otp) {
-      setError("Vui lòng nhập OTP.");
+    const code = otp.trim();
+    if (!code) {
+      setError("Vui long nhap OTP.");
       return;
     }
 
     setLoadingSubmit(true);
     try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/verify-registration", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ otp })
-      });
+      // ✅ Service không ném lỗi: luôn trả ApiResult
+      const res = await authServiceLong.verifyRegistration({ otp: code });
 
-      const data = await response.json().catch(() => ({}));
-      setLoadingSubmit(false);
-
-      if (response.ok) {
-        setInfo(data.message || "Xác thực thành công!");
-        setError("");
-        setTimeout(() => navigate("/login"), 1000);
-      } else if (response.status === 422) {
-        const firstError = Array.isArray(data.detail)
-          ? data.detail[0]?.msg || "Có lỗi xảy ra."
-          : data.detail || "Có lỗi xảy ra.";
-        setError(firstError);
-      } else {
-        setError(data.detail?.message || "Có lỗi xảy ra, vui lòng thử lại.");
+      if (!res.ok) {
+        setError(res.message || "Co loi xay ra, vui long thu lai.");
+        return;
       }
-    } catch (err) {
-      console.error(err);
-      setError("Không thể kết nối đến server.");
+
+      setInfo(res.data.message || res.message || "Xac thuc thanh cong!");
+      // Điều hướng thẳng về login (có thể đổi sang setTimeout nếu muốn hiển thị info lâu hơn)
+      navigate("/login", { replace: true });
+    } finally {
       setLoadingSubmit(false);
     }
   };
@@ -59,22 +46,16 @@ function OtpSignupLogic() {
     setError("");
     setInfo("");
     setLoadingResend(true);
-
     try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-registration-otp", {
-        credentials: "include",
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({ email: location.state?.email, phone: location.state?.phone }),
-      });
-      const data = await response.json().catch(() => ({}));
-      setLoadingResend(false);
+      const res = await authServiceLong.resendRegistrationOtp();
 
-      if (response.ok) setInfo(data.message || "OTP đã gửi lại.");
-      else setError(data.message || "Không thể gửi lại OTP.");
-    } catch (err) {
-      console.error(err);
-      setError("Không thể kết nối đến server.");
+      if (!res.ok) {
+        setError(res.message || "Khong the gui lai OTP.");
+        return;
+      }
+
+      setInfo(res.data.message || res.message || "OTP da duoc gui lai.");
+    } finally {
       setLoadingResend(false);
     }
   };

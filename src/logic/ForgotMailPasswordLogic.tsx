@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ForgotMailPassword from "../pages/ForgotMailPassword";
+import { authServiceLong } from "../api/auth/authService"; // ✅ đúng path
 
 function ForgotMailPasswordLogic() {
   const [email, setEmail] = useState("");
@@ -13,27 +14,25 @@ function ForgotMailPasswordLogic() {
     setError(null);
     setLoading(true);
 
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError("Vui lòng nhập email.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/forgot-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        credentials: "include", // quan trọng để lưu cookie temp_password_reset_id
-        body: JSON.stringify({ email }),
-      });
+      // ✅ api không ném lỗi: luôn trả ApiResult
+      const res = await authServiceLong.forgotPassword({ email: trimmed });
 
-      const data = await response.json();
-
-      if (response.ok && data.status === "success") {
-        // chuyển sang trang nhập OTP
-        navigate("/otp-forgot", { state: { email } });
-      } else {
-        setError(data.message || "Something went wrong");
+      if (!res.ok) {
+        setError(res.message || "Network error, please try again.");
+        return;
       }
-    } catch {
-      setError("Network error, please try again.");
+
+      // ✅ SuccessResponse chỉ có { message }
+      // Có thể hiển thị toast res.data.message nếu muốn
+      navigate("/otp-forgot", { state: { email: trimmed } });
     } finally {
       setLoading(false);
     }

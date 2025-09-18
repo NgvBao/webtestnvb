@@ -11,6 +11,7 @@ import UserManagementLogic from "./logic/UserManagementLogic";
 import ForgotMailPasswordLogic from "./logic/ForgotMailPasswordLogic";
 import ForgotChangePasswordLogic from "./logic/ForgotChangePasswordLogic";
 import OtpChangeLogic from "./logic/OtpChangeLogic";
+import ProjectManagementLogic from "./logic/ProjectManagementLogic";
 // Route bảo vệ
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser();
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/forgot-password" element={<PublicRoute><ForgotMailPasswordLogic /></PublicRoute>} />
           <Route path="/change-password" element={<PublicRoute><ForgotChangePasswordLogic /></PublicRoute>} />
           <Route path="/otp-forgot" element={<PublicRoute><OtpChangeLogic /></PublicRoute>} />
+          <Route path="/project-management" element={<ProtectedRoute><ProjectManagementLogic /></ProtectedRoute>} />
           {/* Route cần login */}
           <Route path="/dashboard" element={<ProtectedRoute><TurbineListLogic /></ProtectedRoute>} />
           <Route path="/setting" element={<ProtectedRoute><SettingLogic /></ProtectedRoute>} />

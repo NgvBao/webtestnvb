@@ -77,3 +77,24 @@ vite.config.ts.timestamp-*
 *.njsproj
 *.sln
 *.sw?
+
+*storybook.log
+storybook-static
+# ==== Storybook ====
+# Thư mục cấu hình Storybook
+.storybook/
+
+# Các file story (nếu không muốn commit)
+*.stories.ts
+*.stories.tsx
+*.stories.jsx
+*.stories.js
+*.stories.mdx
+
+# Thư mục build Storybook
+storybook-static/
+
+# Cache Storybook
+node_modules/.cache/storybook
+src/storybook/
+src/stories

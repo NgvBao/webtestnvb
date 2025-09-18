@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ForgotChangePasswordPage from "../pages/ForgotChangePasswordPage";
+import { authServiceLong } from "../api/auth/authService"; // ✅ đúng path
 
 function ForgotChangePasswordLogic() {
   const [newPassword, setNewPassword] = useState("");
@@ -12,35 +13,33 @@ function ForgotChangePasswordLogic() {
     setInfo(undefined);
 
     if (!newPassword || !confirmPassword) {
-      setError("Vui lòng nhập đầy đủ mật khẩu mới và xác nhận mật khẩu.");
+      setError("Vui long nhap day du mat khau moi va xac nhan.");
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("Mật khẩu và xác nhận mật khẩu không trùng khớp.");
+      setError("Mat khau va xac nhan mat khau khong khop.");
       return;
     }
-    try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // gửi cookie reset_id
-        body: JSON.stringify({
-          password: newPassword,
-          confirm_password: confirmPassword,
-        }),
-      });
 
-      const data = await response.json();
-      if (!response.ok) {
-        setError(data.detail?.message || "Đặt lại mật khẩu thất bại.");
-      } else {
-        setInfo(data.message || "Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.");
-        // 👉 nếu muốn redirect luôn:
-        // window.location.href = "/login";
-      }
-    } catch {
-      setError("Có lỗi kết nối. Vui lòng thử lại sau.");
+    // ✅ api không throw: luôn trả ApiResult<T>
+    const res = await authServiceLong.resetPassword({
+      password: newPassword,
+      confirm_password: confirmPassword,
+    });
+
+    if (!res.ok) {
+      // ApiErr: lấy message từ wrapper
+      setError(res.message || "Dat lai mat khau that bai.");
+      return;
     }
+
+    // ApiOk<SuccessResponse>: chỉ có { message: string }
+    const msg =
+      res.data?.message ||
+      res.message ||
+      "Dat lai mat khau thanh cong. Vui long dang nhap lai.";
+
+    setInfo(msg);
   };
 
   return (
@@ -52,7 +51,7 @@ function ForgotChangePasswordLogic() {
       setConfirmPassword={setConfirmPassword}
       error={error}
       info={info}
-      title="Đặt lại mật khẩu"
+      title="Dat lai mat khau"
     />
   );
 }

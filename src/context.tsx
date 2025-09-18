@@ -1,5 +1,9 @@
+
 // UserContext.tsx
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { authServiceLong } from "./api/auth/authService";
+
+export const AUTH_SESSION_STORAGE_KEY = "authSessionActive";
 
 type User = {
   id: string;
@@ -24,14 +28,49 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("https://fastapi-turbine-62vm.onrender.com/auth/me", { credentials: "include" })
-      .then(res => {
-        if (!res.ok) throw new Error("Not authenticated");
-        return res.json();
-      })
-      .then(data => setUser(data))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    const hasSession = sessionStorage.getItem(AUTH_SESSION_STORAGE_KEY) === "true";
+
+    if (!hasSession) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadUser = async () => {
+      try {
+        const res = await authServiceLong.me();
+        if (cancelled) return;
+
+        if (!res.ok) {
+          sessionStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+          setUser(null);
+          return;
+        }
+
+        setUser({
+          id: res.data.id,
+          name: res.data.name,
+          role: res.data.role,
+        });
+      } catch (error) {
+        console.error("Failed to load current user:", error);
+        if (!cancelled) {
+          sessionStorage.removeItem(AUTH_SESSION_STORAGE_KEY);
+          setUser(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadUser();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

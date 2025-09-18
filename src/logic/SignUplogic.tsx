@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SignUpPage from "../pages/SignUpPage";
+import { authServiceLong } from "../api/auth/authService"; // ✅ giữ đúng path
 
 function SignUpLogic() {
   const [name, setName] = useState("");
@@ -18,43 +19,45 @@ function SignUpLogic() {
     setError("");
     setLoading(true);
 
-    try {
-      const response = await fetch("https://fastapi-turbine-62vm.onrender.com/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          password,
-          confirm_password: confirmPassword,
-        }),
-      });
+    const payload = {
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      password,
+      confirm_password: confirmPassword,
+    };
 
-      const data = await response.json().catch(() => ({}));
+    if (!payload.name || !payload.email || !payload.phone || !password || !confirmPassword) {
+      setError("Vui long nhap day du thong tin.");
       setLoading(false);
-
-      if (response.ok) {
-        // chuyển sang OTP page ngay lập tức
-        navigate("/otp-sign-up", { state: { email, phone } });
-
-        // gửi lại OTP async (fire-and-forget)
-        fetch("https://fastapi-turbine-62vm.onrender.com/auth/resend-registration-otp", {
-          method: "POST",
-          credentials: "include",
-        }).catch((err) => console.error("Resend registration OTP failed:", err));
-      } else if (response.status === 400 || response.status === 409 || response.status === 422) {
-        // backend trả detail dạng object {status, message}
-        setError(data.detail?.message || data.message || "Có lỗi xảy ra.");
-      } else {
-        setError("Có lỗi xảy ra, vui lòng thử lại.");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Không thể kết nối đến server.");
-      setLoading(false);
+      return;
     }
+    if (password !== confirmPassword) {
+      setError("Mat khau va xac nhan khong khop.");
+      setLoading(false);
+      return;
+    }
+
+    // ✅ Service khong throw: luon tra ApiResult
+    const registerRes = await authServiceLong.register(payload);
+
+    if (!registerRes.ok) {
+      setError(registerRes.message || "Co loi xay ra, vui long thu lai.");
+      setLoading(false);
+      return;
+    }
+
+    // ✅ Dang ky thanh cong → chuyen sang man OTP
+    navigate("/otp-sign-up", { state: { email: payload.email, phone: payload.phone } });
+
+    // (Tuy chon) Gui lai OTP, khong block UI
+    authServiceLong.resendRegistrationOtp().then((res) => {
+      if (!res.ok) {
+        console.error("Resend registration OTP failed:", res.message);
+      }
+    });
+
+    setLoading(false);
   };
 
   return (

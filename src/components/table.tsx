@@ -1,12 +1,8 @@
-// components/table.tsx
 import React from "react";
 import "../components styles/table.css";
 
-// Cho phép dùng key của T + thêm "index" và "actions"
-export type ColumnKey<T> = keyof T | "index" | "actions";
-
 export type Column<T> = {
-  key: ColumnKey<T>;
+  key: string;
   header: string;
   size?: number;
   className?: string;
@@ -16,11 +12,15 @@ export type Column<T> = {
 export type GenericTableProps<T> = {
   data: T[];
   columns: Column<T>[];
+  onRowClick?: (row: T, index: number) => void;                // ⬅️ mới
+  rowClassName?: (row: T, index: number) => string | undefined; // ⬅️ mới
 };
 
 function GenericTable<T extends { id: string }>({
   data,
   columns,
+  onRowClick,
+  rowClassName,
 }: GenericTableProps<T>) {
   return (
     <div className="table-container">
@@ -29,7 +29,7 @@ function GenericTable<T extends { id: string }>({
           <tr>
             {columns.map((col) => (
               <th
-                key={String(col.key)}
+                key={col.key}
                 className={col.className}
                 style={col.size ? { width: `${col.size * 100}%` } : {}}
               >
@@ -46,25 +46,27 @@ function GenericTable<T extends { id: string }>({
               </td>
             </tr>
           ) : (
-            data.map((row, index) => (
-              <tr key={row.id} className="table-row">
-                {columns.map((col) => (
-                  <td
-                    key={String(col.key)}
-                    className={col.className}
-                    style={col.size ? { width: `${col.size * 100}%` } : {}}
-                  >
-                    {col.render
-                      ? col.render(row, index)
-                      : col.key === "index"
-                      ? index + 1
-                      : col.key === "actions"
-                      ? null
-                      : (row[col.key as keyof T] as React.ReactNode)}
-                  </td>
-                ))}
-              </tr>
-            ))
+            data.map((row, index) => {
+              const cn = `table-row${rowClassName ? ` ${rowClassName(row, index) || ""}` : ""}`;
+              return (
+                <tr
+                  key={row.id}
+                  className={cn}
+                  onClick={onRowClick ? () => onRowClick(row, index) : undefined}
+                  style={onRowClick ? { cursor: "pointer" } : undefined}
+                >
+                  {columns.map((col) => (
+                    <td
+                      key={col.key}
+                      className={col.className}
+                      style={col.size ? { width: `${col.size * 100}%` } : {}}
+                    >
+                      {col.render ? col.render(row, index) : (row as any)[col.key] ?? null}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>

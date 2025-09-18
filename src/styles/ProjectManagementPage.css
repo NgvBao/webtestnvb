@@ -1,0 +1,101 @@
+/* ================== Container chính ================== */
+.ProjectManagementPage {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* ================== Sidebar ================== */
+.sidebar-content {
+  width: 220px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: #f9f9f9;
+}
+
+/* ================== Main content ================== */
+.main-content {
+
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 1rem;
+  background: #fff;
+}
+
+/* ================== Content body ================== */
+.content-body {
+      margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1400px;
+  gap: 1rem;
+  position: relative;
+}
+
+.content-body::after {
+  content: '';
+  display: block;
+  height: 5rem;
+}
+
+/* ================== Toolbar (giống User page) ================== */
+.toolbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.btn-create {
+  padding: 4px 10px;
+  font-size: 13px;
+  border: 1px solid #2d4373;
+  background: #3b5998;
+  color: #fff;
+  cursor: pointer;
+  margin-left: auto; /* đẩy về phải khi có không gian */
+}
+
+.search-input {
+  width: 100%;
+  padding: 5px;
+  font-size: 13px;
+  border: 1px solid #999;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border: 1px solid #2d4373;
+}
+
+/* ================== Responsive ================== */
+@media (max-width: 1200px) { .content-body { max-width: 1000px; } }
+
+@media (max-width: 992px) {
+  .sidebar-content { width: 200px; }
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .search-input { width: 100%; }
+}
+
+@media (max-width: 768px) {
+  .ProjectManagementPage { flex-direction: column; }
+  .sidebar-content { width: 100%; order: -1; }
+  .main-content { width: 100%; overflow-x: auto; }
+  .project-table th, .project-table td { font-size: 12px; padding: 6px; }
+}
+
+@media (max-width: 576px) {
+  .toolbar { flex-direction: column; gap: 0.5rem; }
+  .btn-create { font-size: 12px; padding: 4px 8px; }
+  .search-input { font-size: 12px; padding: 4px 6px; }
+  .project-table th, .project-table td { font-size: 11px; }
+}

@@ -1,0 +1,119 @@
+/* Modal.css */
+
+/* overlay giống modal Create */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* hộp modal: trắng, viền mảnh, không bo góc, rộng ~400px như Create */
+.modal-container {
+  position: relative;
+  background: #fff;
+  width: 400px;
+  max-width: 95vw;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  box-sizing: border-box;
+  font-size: 13px;
+}
+
+/* nút đóng ở góc phải trên, nhỏ gọn */
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  line-height: 1;
+  color: #333;
+  cursor: pointer;
+}
+.modal-close:hover { color: #2d4373; }
+
+/* header giống Create: đậm, căn giữa */
+.modal-header {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  text-align: center;
+  color: #000;
+}
+
+/* form dọc, khoảng cách vừa phải */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* mỗi field gồm label + control xếp dọc */
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* label nhỏ, rõ ràng */
+.modal-field > label {
+  font-size: 13px;
+  color: #000;
+}
+
+/* input/textarea giống modal Create */
+.modal-field input,
+.modal-field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  background: #fff;
+  color: #000;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+/* focus viền xanh đậm như hệ thống của bạn */
+.modal-field input:focus,
+.modal-field textarea:focus {
+  outline: none;
+  border-color: #3B5998;
+}
+
+/* disabled/read-only (editable === false) */
+.modal-field input:disabled,
+.modal-field textarea:disabled {
+  background: #e4e4e4;
+  color: #000;
+  opacity: 1;            /* tránh nhợt nhạt quá */
+  cursor: not-allowed;
+}
+
+/* textarea cao vừa phải, cho phép kéo dãn dọc */
+.modal-field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* footer khu vực nút – parent inject (btn-… của bạn giữ nguyên) */
+.modal-footer {
+  margin-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+/* responsive giống Create */
+@media (max-width: 576px) {
+  .modal-container {
+    width: 95vw;
+    padding: 16px;
+  }
+}

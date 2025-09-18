@@ -1,31 +1,48 @@
-// Button.tsx
 import React from "react";
 import "../components styles/button.css";
 
-type ButtonProps = {
-  label: string;
-  variant: "cancel" | "delete" | "submit" | "approve" | "detail";
-  onClick?: () => void;
+type Variant = "cancel" | "delete" | "submit" | "approve" | "detail";
+
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: Variant;
+  loading?: boolean;
   hidden?: boolean;
-  loading?: boolean; // thêm prop loading
 };
 
-const Button: React.FC<ButtonProps> = ({
-  label,
-  variant,
-  onClick,
-  hidden,
-  loading,
-}) => {
-  return (
-    <button
-      className={`btn btn-${variant} ${hidden ? "hidden" : ""}`}
-      onClick={onClick}
-      disabled={loading} // disable khi đang loading
-    >
-      {loading && variant === "approve" ? "Approving..." : label}
-    </button>
-  );
+const getLoadingLabel = (variant: Variant) => {
+  switch (variant) {
+    case "approve":
+      return "Approving...";
+    case "delete":
+      return "Deleting...";
+    case "submit":
+      return "Submitting...";
+    case "cancel":
+      return "Cancelling...";
+    default:
+      return "Loading...";
+  }
 };
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    { children, variant = "submit", loading, hidden, className, disabled, ...rest },
+    ref
+  ) => {
+    return (
+      <button
+        ref={ref}
+        className={`btn btn-${variant} ${hidden ? "hidden" : ""} ${className ?? ""}`}
+        disabled={disabled || loading}
+        aria-busy={loading}
+        {...rest}
+      >
+        {loading ? getLoadingLabel(variant) : children}
+      </button>
+    );
+  }
+);
+
+Button.displayName = "Button";
 
 export default Button;
