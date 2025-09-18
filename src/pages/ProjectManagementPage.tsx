@@ -1,3 +1,4 @@
+// src/pages/ProjectManagementPage.tsx
 import React from "react";
 import Sidebar from "../components/sidebar";
 import ModalForm from "../components/Modal";
@@ -13,7 +14,7 @@ export type Project = {
   description: string;
   performance: string;
   createdAt: string;
-  status: "Active" | "Inactive" | string;
+  status: string; // nhận enum thô từ BE: NOT_STARTED/ACTIVE/...
 };
 
 type ProjectManagementPageProps = {
@@ -41,6 +42,25 @@ type ProjectManagementPageProps = {
   onDeleteDetail: () => void;
   loadingSaveDetail?: boolean;
   loadingDeleteDetail?: boolean;
+
+  // Extra
+  loadingList?: boolean;
+};
+
+const statusClass = (s: string) => {
+  // Map enum -> class cho badge
+  switch (s) {
+    case "ACTIVE":
+      return "status-active";
+    case "NOT_STARTED":
+      return "status-notstarted";
+    case "PAUSED":
+      return "status-paused";
+    case "COMPLETED":
+      return "status-completed";
+    default:
+      return "status-unknown";
+  }
 };
 
 const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
@@ -66,6 +86,8 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   onDeleteDetail,
   loadingSaveDetail,
   loadingDeleteDetail,
+
+  loadingList,
 }) => {
   // ===== Fields (Detail) =====
   const detailFields = [
@@ -104,12 +126,16 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
     description: newDescription,
   };
 
-  // ===== Columns (match style User page) =====
+  // ===== Columns =====
   const columns: Column<Project>[] = [
     { key: "index", header: "#", size: 0.06, render: (_row, i) => i + 1 },
     { key: "name", header: "Project", size: 0.26, className: "project" },
     { key: "createdAt", header: "Created", size: 0.16, className: "created" },
-    {key: "windfarmCount",header: "Windfarms",size: 0.12,className: "windfarms",
+    {
+      key: "windfarmCount",
+      header: "Windfarms",
+      size: 0.12,
+      className: "windfarms",
       render: (p) => (
         <span style={{ display: "inline-block", width: "100%", textAlign: "center" }}>
           {p.windfarmCount}
@@ -120,18 +146,14 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
     {
       key: "status",
       header: "Status",
-      size: 0.1,
+      size: 0.12,
       className: "status",
-      render: (p) => (
-        <span className={String(p.status) === "Active" ? "status-active" : "status-inactive"}>
-          {p.status}
-        </span>
-      ),
+      render: (p) => <span className={statusClass(String(p.status))}>{p.status}</span>,
     },
     {
       key: "actions",
       header: "Actions",
-      size: 0.1,
+      size: 0.12,
       className: "action-cell",
       render: (p) => (
         <>
@@ -141,7 +163,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
           <Button
             variant="delete"
             onClick={() => onDeleteDetail()}
-            loading={loadingDeleteDetail === true /* đổi theo per-row id nếu bạn có */}
+            loading={!!loadingDeleteDetail /* có thể đổi theo per-row id nếu cần */}
           >
             Delete
           </Button>
@@ -160,7 +182,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       {/* Main */}
       <main className="main-content">
         <div className="content-body">
-          {/* Toolbar — cùng bố cục với User page */}
+          {/* Toolbar */}
           <div className="toolbar">
             <input
               type="text"
@@ -175,8 +197,14 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
             </button>
           </div>
 
-          {/* Table */}
-          <GenericTable<Project> data={projects} columns={columns} />
+          {/* Loading / Empty / Table */}
+          {loadingList ? (
+            <div className="list-loading">Loading projects…</div>
+          ) : projects.length === 0 ? (
+            <div className="list-empty">No projects</div>
+          ) : (
+            <GenericTable<Project> data={projects} columns={columns} />
+          )}
         </div>
       </main>
 

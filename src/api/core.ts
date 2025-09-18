@@ -34,7 +34,7 @@ function toErr(error: AxiosError): ApiErr {
 
 // -------------------- axios instance --------------------
 export const apiClient = axios.create({
-  baseURL: "/api",
+  baseURL: "https://fastapi-turbine-62vm.onrender.com/api/v1",
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
