@@ -24,25 +24,26 @@ function LoginLogic() {
       return;
     }
 
-try {
-  const loginRes = await authServiceLong.login({ identifier, password });
-  if (!loginRes.ok) {
-    setError(loginRes.message || "Có lỗi xảy ra, vui lòng thử lại.");
-    return;
-  }
+    try {
+      // ✅ Service không throw; luôn trả ApiResult
+      const loginRes = await authServiceLong.login({ identifier, password });
 
-  // GỌI resend ngay khi còn trong cùng context
-  const resendRes = await authServiceLong.resendOtp();
-  if (!resendRes.ok) {
-    console.error("Resend OTP failed:", resendRes.message);
-  }
+      if (!loginRes.ok) {
+        setError(loginRes.message || "Có lỗi xảy ra, vui lòng thử lại.");
+        return;
+      }
 
-  // Sau đó mới navigate
-  navigate("/otp-login", { state: { identifier } });
-} finally {
-  setLoading(false);
-}
+      // ✅ Theo DTO: LoginPendingResponse chỉ có { message }, chuyển sang màn OTP
+      navigate("/otp-login", { state: { identifier } });
 
+      // (Tuỳ chọn) gửi lại OTP ngay sau khi điều hướng
+      const resendRes = await authServiceLong.resendOtp();
+      if (!resendRes.ok) {
+        console.error("Resend OTP failed:", resendRes.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
