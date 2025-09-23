@@ -39,16 +39,21 @@ type ProjectManagementPageProps = {
 
   // Loading trong bảng & xoá theo hàng
   loadingList?: boolean;
-  loadingDeleteId?: string | null;   // per-row spinner
+  loadingDeleteId?: string | null; // per-row spinner
 };
 
 const statusClass = (s: string) => {
   switch (s) {
-    case "ACTIVE": return "status-active";
-    case "NOT_STARTED": return "status-notstarted";
-    case "PAUSED": return "status-paused";
-    case "COMPLETED": return "status-completed";
-    default: return "status-unknown";
+    case "ACTIVE":
+      return "status-active";
+    case "NOT_STARTED":
+      return "status-notstarted";
+    case "PAUSED":
+      return "status-paused";
+    case "COMPLETED":
+      return "status-completed";
+    default:
+      return "status-unknown";
   }
 };
 
@@ -76,11 +81,19 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   // ===== Create Modal fields =====
   const createFields = [
     { key: "name", label: "Project Name", editable: true },
-    { key: "description", label: "Description", editable: true, type: "textarea" as const },
+    {
+      key: "description",
+      label: "Description",
+      editable: true,
+      type: "textarea" as const,
+    },
   ];
-  const createValues: Record<string, string> = { name: newName, description: newDescription };
+  const createValues: Record<string, string> = {
+    name: newName,
+    description: newDescription,
+  };
 
-  // ===== Columns (áp dụng align + sortable) =====
+  // ===== Columns =====
   const columns: Column<Project>[] = [
     {
       key: "index",
@@ -88,7 +101,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       size: 0.06,
       align: "center",
       sortable: false,
-      render: (_row, i) => i + 1,
+      render: (_row, i) => i + 1, // ✅ _row thay vì row
       headerClassName: "col-center",
       className: "col-center",
     },
@@ -106,7 +119,6 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       size: 0.16,
       align: "right",
       sortable: true,
-      // ISO string sort được luôn; nếu muốn chắc ăn: new Date(r.createdAt).getTime()
       sortAccessor: (r) => r.createdAt || "",
       className: "created",
       headerClassName: "col-right",
@@ -138,7 +150,9 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       sortAccessor: (r) => r.status,
       className: "status col-center",
       headerClassName: "col-center",
-      render: (p) => <span className={statusClass(String(p.status))}>{p.status}</span>,
+      render: (p) => (
+        <span className={statusClass(String(p.status))}>{p.status}</span>
+      ),
     },
     {
       key: "actions",
@@ -153,7 +167,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
             variant="detail"
             style={{ marginRight: "0.5rem" }}
             onClick={(e: any) => {
-              e.stopPropagation(); // chặn nổi bọt nếu sau này bạn bật onRowClick
+              e.stopPropagation();
               onManageClick?.(p);
             }}
           >
@@ -194,13 +208,17 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <div className="toolbar-actions">
-              <Button variant="submit" onClick={onCreateClick} loading={!!loadingCreate}>
+              <Button
+                variant="submit"
+                onClick={onCreateClick}
+                loading={!!loadingCreate}
+              >
                 + Create
               </Button>
             </div>
           </div>
 
-          {/* Bảng (dùng props mới: loading, emptyText, stickyHeader, cellProps) */}
+          {/* Table */}
           <div className="table-section">
             <GenericTable<Project>
               data={projects}
@@ -208,17 +226,12 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
               loading={!!loadingList}
               emptyText="No projects"
               stickyHeader
-              // auto tooltip text dài; mặc định true trong table mới
-              cellProps={(row, col) => {
-                // chặn nổi bọt khi click vào ô Action
+              cellProps={(_row, col) => {
                 if (col.key === "actions") {
-                  return {
-                    onClick: (e) => e.stopPropagation(),
-                  };
+                  return { onClick: (e) => e.stopPropagation() };
                 }
                 return {};
               }}
-              // nếu sau này muốn click cả dòng để vào trang quản lý:
               // onRowClick={(p) => onManageClick?.(p)}
               rowClassName={(_r) => undefined}
             />
@@ -238,13 +251,19 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
             if (key === "description") setNewDescription(v);
           }}
           onClose={onCancelCreate}
-          onSave={() => onCreateSubmit(newName.trim(), newDescription.trim())}
+          onSave={() =>
+            onCreateSubmit(newName.trim(), newDescription.trim())
+          }
           footer={
             <>
-              <Button variant="cancel" onClick={onCancelCreate}>Cancel</Button>
+              <Button variant="cancel" onClick={onCancelCreate}>
+                Cancel
+              </Button>
               <Button
                 variant="submit"
-                onClick={() => onCreateSubmit(newName.trim(), newDescription.trim())}
+                onClick={() =>
+                  onCreateSubmit(newName.trim(), newDescription.trim())
+                }
                 loading={!!loadingCreate}
                 disabled={!newName.trim()}
               >
