@@ -43,7 +43,7 @@ function UserManagementPage({
       header: "#",
       size: 0.06,
       align: "center",
-      render: (_row, i) => i + 1,
+      render: (_row, i) => i + 1, // ✅ dùng _row để tránh lỗi TS6133
       headerClassName: "col-center",
       className: "col-center",
     },
@@ -88,7 +88,11 @@ function UserManagementPage({
       headerClassName: "col-center",
       className: "col-center",
       render: (user) => (
-        <span className={user.status === "Active" ? "status-active" : "status-inactive"}>
+        <span
+          className={
+            user.status === "Active" ? "status-active" : "status-inactive"
+          }
+        >
           {user.status}
         </span>
       ),
@@ -148,7 +152,7 @@ function UserManagementPage({
             />
           </div>
 
-          {/* Table: áp dụng props mới */}
+          {/* Table */}
           <GenericTable<User>
             data={users}
             columns={columns}
@@ -158,9 +162,7 @@ function UserManagementPage({
             // Nếu sau này muốn click cả dòng: onRowClick={(u) => ...}
             // Chặn nổi bọt ở cell Actions (phòng ngừa):
             cellProps={(_row, col) =>
-              col.key === "actions"
-                ? { onClick: (e) => e.stopPropagation() }
-                : {}
+              col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
             }
           />
         </div>
