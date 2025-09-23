@@ -18,6 +18,7 @@ const UserManagementLogic: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [approveLoading, setApproveLoading] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
+  const [loadingList, setLoadingList] = useState(false); // ✅ mới
 
   // debounce search
   useEffect(() => {
@@ -26,7 +27,9 @@ const UserManagementLogic: React.FC = () => {
   }, [searchTerm]);
 
   const fetchUsers = async () => {
+    setLoadingList(true); // ✅ start
     const res = await authServiceLong.getAllUsers();
+    setLoadingList(false); // ✅ end
 
     if (!res.ok) {
       alert(res.message || "Failed to fetch users");
@@ -55,17 +58,15 @@ const UserManagementLogic: React.FC = () => {
 
   const handleApproveClick = async (user: User) => {
     setApproveLoading(user.id);
-
     const res = await authServiceLong.approveUser({ user_id: user.id });
+    setApproveLoading(null);
 
     if (!res.ok) {
       alert(res.message || "Approve failed");
-      setApproveLoading(null);
       return;
     }
 
     alert(res.data.message || "Approve success");
-    setApproveLoading(null);
     fetchUsers();
   };
 
@@ -73,17 +74,15 @@ const UserManagementLogic: React.FC = () => {
     if (!window.confirm(`Ban co chac muon xoa user: ${user.name}?`)) return;
 
     setDeleteLoading(user.id);
-
     const res = await authServiceLong.deleteUser(user.id);
+    setDeleteLoading(null);
 
     if (!res.ok) {
       alert(res.message || "Delete failed");
-      setDeleteLoading(null);
       return;
     }
 
     alert(res.data.message || "Delete success");
-    setDeleteLoading(null);
     fetchUsers();
   };
 
@@ -97,13 +96,14 @@ const UserManagementLogic: React.FC = () => {
 
   return (
     <UserManagementPage
-      approveLoading={approveLoading}
-      deleteLoading={deleteLoading}
       users={filteredUsers}
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
+      approveLoading={approveLoading}
+      deleteLoading={deleteLoading}
       onApproveClick={handleApproveClick}
       onDeleteClick={handleDelete}
+      loadingList={loadingList} // ✅ truyền xuống bảng
     />
   );
 };

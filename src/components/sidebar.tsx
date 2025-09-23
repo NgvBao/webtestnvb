@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser, AUTH_SESSION_STORAGE_KEY } from "../context";
 import { authServiceLong } from "../api/auth/authService";
+// ❗ FIX: sửa đường dẫn CSS (không có dấu cách)
 import "../components styles/sidebar.css";
 
 function Sidebar() {
@@ -12,13 +13,13 @@ function Sidebar() {
 
   const [loggingOut, setLoggingOut] = useState(false);
 
-  // Explorer-style: mở theo route hiện tại hoặc trạng thái đã lưu
+  // Explorer-style: mở Manage theo route hiện tại hoặc trạng thái đã lưu
   const [openManage, setOpenManage] = useState<boolean>(() => {
     const p = window.location.pathname;
-    const byRoute =
+    const inManage =
       p.startsWith("/user") || p.startsWith("/project-management") || p.startsWith("/winfarm");
     const saved = localStorage.getItem("sidebar.manageOpen") === "1";
-    return byRoute || saved;
+    return inManage || saved;
   });
 
   useEffect(() => {
@@ -27,9 +28,12 @@ function Sidebar() {
 
   const path = location.pathname;
 
-  const activeTab = useMemo(() => {
-    if (path === "/setting") return "setting";
-    if (path === "/dashboard") return "dashboard";
+  // ✅ Phân tách rõ tab lớn
+  const activeTab = useMemo<"settings" | "projects" | "manage" | "">(() => {
+    if (path === "/setting") return "settings";
+    // Trang danh sách dự án cho user (không phải Project Management)
+    if (path === "/project") return "projects";
+    // Nhóm Manage
     if (
       path.startsWith("/user") ||
       path.startsWith("/project-management") ||
@@ -40,7 +44,8 @@ function Sidebar() {
     return "";
   }, [path]);
 
-  const activeSub = useMemo(() => {
+  // ✅ Chỉ dùng cho submenu Manage
+  const activeSub = useMemo<"user" | "project" | "winfarm" | "">(() => {
     if (path.startsWith("/user")) return "user";
     if (path.startsWith("/project-management")) return "project";
     if (path.startsWith("/winfarm")) return "winfarm";
@@ -67,13 +72,11 @@ function Sidebar() {
 
   // Auto mở nếu đang ở route con của Manage
   useEffect(() => {
-    if (
+    const inManage =
       path.startsWith("/user") ||
       path.startsWith("/project-management") ||
-      path.startsWith("/winfarm")
-    ) {
-      setOpenManage(true);
-    }
+      path.startsWith("/winfarm");
+    if (inManage) setOpenManage(true);
   }, [path]);
 
   const submenuId = "sidebar-manage-submenu";
@@ -81,8 +84,9 @@ function Sidebar() {
   return (
     <aside className="sidebar" aria-label="Primary">
       <ul className="menu" role="menu">
+        {/* Settings */}
         <li
-          className={activeTab === "setting" ? "active" : ""}
+          className={activeTab === "settings" ? "active" : ""}
           role="menuitem"
           onClick={() => handleNavigate("/setting")}
           tabIndex={0}
@@ -93,32 +97,32 @@ function Sidebar() {
             }
           }}
         >
-          Setting
+          Settings
         </li>
 
+        {/* Projects (trang cho user xem danh sách) */}
         <li
-          className={activeTab === "dashboard" ? "active" : ""}
+          className={activeTab === "projects" ? "active" : ""}
           role="menuitem"
-          onClick={() => handleNavigate("/dashboard")}
+          onClick={() => handleNavigate("/project")}
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              handleNavigate("/dashboard");
+              handleNavigate("/project");
             }
           }}
         >
-          Dashboard
+          Projects
         </li>
 
-        {/* Manage */}
+        {/* Manage (submenu) */}
         <li
           className={`has-sub ${openManage ? "open" : ""} ${
             activeTab === "manage" ? "active-parent" : ""
           }`}
           role="none"
         >
-          {/* Dùng button để a11y tốt hơn */}
           <button
             type="button"
             className="submenu-title"
@@ -137,12 +141,7 @@ function Sidebar() {
             <span className="caret" aria-hidden="true" />
           </button>
 
-          <ul
-            id={submenuId}
-            className="submenu"
-            role="menu"
-            aria-label="Manage submenu"
-          >
+          <ul id={submenuId} className="submenu" role="menu" aria-label="Manage submenu">
             <li
               className={activeSub === "user" ? "active" : ""}
               role="menuitem"

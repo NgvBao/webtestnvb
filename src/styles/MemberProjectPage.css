@@ -1,0 +1,225 @@
+/* ================== Container chính ================== */
+.MemberProjectPage {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* ================== Sidebar ================== */
+.sidebar-content {
+  width: 220px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: #f9f9f9;
+}
+
+/* ================== Main content ================== */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 1rem;
+  background: #fff;
+}
+
+/* ================== Content body ================== */
+.content-body {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1400px;
+  gap: 1rem;
+  position: relative;
+}
+
+.content-body::after {
+  content: '';
+  display: block;
+  height: 5rem;
+}
+
+/* ================== Header ================== */
+.page-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.page-title {
+  font-weight: 700;
+}
+
+/* ================== Invite section ================== */
+.invite-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.invite-label {
+  font-size: 12px;
+  color: #333;
+}
+
+.invite-row-wrap {
+  position: relative;
+  max-width: 560px;
+  width: 100%;
+}
+
+.invite-row {
+  display: flex;
+  gap: 8px;
+}
+
+.invite-input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #999;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.invite-input:focus {
+  outline: none;
+  border: 1px solid #2d4373;
+}
+
+.invite-add-btn {
+  padding: 4px 10px;
+}
+
+/* Gợi ý (dropdown) */
+.suggest-dropdown {
+  position: absolute;
+  top: calc(100% + 0px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 10;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.suggest-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-top: 1px solid #eee;
+  gap: 8px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.suggest-item[aria-selected="true"],
+.suggest-item.active {
+  background: #f5f7fb;
+}
+
+.suggest-name {
+  font-weight: 600;
+}
+
+.suggest-email {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.suggest-empty,
+.suggest-loading {
+  padding: 8px 10px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* ================== Filter section ================== */
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 12px;
+}
+
+.filter-input {
+  max-width: 560px;
+  padding: 6px 8px;
+  border: 1px solid #999;
+  font-size: 13px;
+}
+
+.filter-input:focus {
+  outline: none;
+  border: 1px solid #2d4373;
+}
+
+/* ================== Table & Role badge ================== */
+.table-wrap {
+  display: block;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 18px;
+  border: 1px solid transparent;
+}
+.role-owner {
+  background: #ffe9e9;
+  border-color: #ff9b9b;
+  color: #a60000;
+}
+.role-editor {
+  background: #fff4db;
+  border-color: #ffd37a;
+  color: #8a5a00;
+}
+.role-viewer {
+  background: #e9f3ff;
+  border-color: #9bc6ff;
+  color: #003c82;
+}
+
+/* ================== Pagination ================== */
+.pagination {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.page-info {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ================== Responsive ================== */
+@media (max-width: 1200px) { .content-body { max-width: 1000px; } }
+
+@media (max-width: 992px) {
+  .sidebar-content { width: 200px; }
+}
+
+@media (max-width: 768px) {
+  .MemberProjectPage { flex-direction: column; }
+  .sidebar-content { width: 100%; order: -1; }
+  .main-content { width: 100%; overflow-x: auto; }
+}
+
+@media (max-width: 576px) {
+  .invite-row { flex-direction: column; }
+  .invite-add-btn { width: 100%; }
+  .filter-input, .invite-input { font-size: 12px; padding: 4px 6px; }
+}

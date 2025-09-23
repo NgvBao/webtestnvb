@@ -1,0 +1,33 @@
+// src/api/types/typesmemberService.ts
+export type ProjectRole = "owner" | "editor" | "viewer";
+
+export type ProjectMemberResponse = {
+  project_id: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  role: ProjectRole;
+  can_invite: boolean;
+  joined_at: string;
+};
+
+export type ProjectMember = ProjectMemberResponse; // UI dùng cùng shape
+
+export type ProjectMemberListResponse = {
+  members: ProjectMemberResponse[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export type AdminUserLite = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+export type AddMemberRequest = {
+  email: string;
+  role: ProjectRole;       // <-- KHÔNG còn "user", dùng "viewer" cho User
+  can_invite: boolean;     // BE vẫn yêu cầu field này
+};

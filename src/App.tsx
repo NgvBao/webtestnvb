@@ -1,18 +1,26 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+// src/App.tsx
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { UserProvider, useUser } from "../src/context";
+
+// Public pages
 import LoginLogic from "./logic/LoginLogic";
 import OtpSignupLogic from "./logic/OtpSignupLogic";
 import OtpLoginLogic from "./logic/OtpLoginLogic";
-import TurbineListLogic from "./logic/TurbineListLogic";
-import SettingLogic from "./logic/SettingLogic";
 import SignUpLogic from "./logic/SignUplogic";
-import SessionsListLogic from "./logic/SessionsListLoic";
-import UserManagementLogic from "./logic/UserManagementLogic";
 import ForgotMailPasswordLogic from "./logic/ForgotMailPasswordLogic";
 import ForgotChangePasswordLogic from "./logic/ForgotChangePasswordLogic";
 import OtpChangeLogic from "./logic/OtpChangeLogic";
+
+// Protected pages
+import ProjectLogic from "./logic/ProjectLogic";
+import SettingLogic from "./logic/SettingLogic";
+import SessionsListLogic from "./logic/SessionsListLoic";
+import UserManagementLogic from "./logic/UserManagementLogic";
 import ProjectManagementLogic from "./logic/ProjectManagementLogic";
-// Route bảo vệ
+import MemberProjectLogic from "./logic/MemberProjectLogic";
+import WindfarmLogic from "./logic/WinfarmLogic"; // ✅ giữ nguyên
+
+// ===== Guards =====
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser();
   if (loading) return <div>Loading...</div>;
@@ -20,12 +28,34 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Route public
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser();
   if (loading) return <div>Loading...</div>;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) return <Navigate to="/project" replace />;
   return <>{children}</>;
+}
+
+// ===== Wrapper: Members =====
+function MemberProjectRouteWrapper() {
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation() as any;
+  const projectFromState = location.state?.project as { id: string; name?: string } | undefined;
+
+  return (
+    <MemberProjectLogic
+      projectId={projectId!}
+      projectTitle={projectFromState?.name ?? "Project Members"}
+      canManage={true} // TODO: map quyền thực tế
+      onBack={() => navigate(-1)}
+    />
+  );
+}
+
+// ===== Wrapper: Windfarms in Project =====
+function WindfarmRouteWrapper() {
+  // WindfarmLogic tự đọc useParams + useLocation bên trong
+  return <WindfarmLogic />;
 }
 
 export default function App() {
@@ -33,7 +63,7 @@ export default function App() {
     <UserProvider>
       <BrowserRouter>
         <Routes>
-          {/* Route public */}
+          {/* Public */}
           <Route path="/login" element={<PublicRoute><LoginLogic /></PublicRoute>} />
           <Route path="/sign-up" element={<PublicRoute><SignUpLogic /></PublicRoute>} />
           <Route path="/otp-login" element={<PublicRoute><OtpLoginLogic /></PublicRoute>} />
@@ -41,9 +71,28 @@ export default function App() {
           <Route path="/forgot-password" element={<PublicRoute><ForgotMailPasswordLogic /></PublicRoute>} />
           <Route path="/change-password" element={<PublicRoute><ForgotChangePasswordLogic /></PublicRoute>} />
           <Route path="/otp-forgot" element={<PublicRoute><OtpChangeLogic /></PublicRoute>} />
+
+          {/* Protected */}
+          <Route path="/project" element={<ProtectedRoute><ProjectLogic /></ProtectedRoute>} />
           <Route path="/project-management" element={<ProtectedRoute><ProjectManagementLogic /></ProtectedRoute>} />
-          {/* Route cần login */}
-          <Route path="/dashboard" element={<ProtectedRoute><TurbineListLogic /></ProtectedRoute>} />
+          <Route
+            path="/project-management/:projectId/members"
+            element={
+              <ProtectedRoute>
+                <MemberProjectRouteWrapper />
+              </ProtectedRoute>
+            }
+          />
+          {/* ✅ Windfarms trong project */}
+          <Route
+            path="/project/:projectId/windfarms"
+            element={
+              <ProtectedRoute>
+                <WindfarmRouteWrapper />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="/setting" element={<ProtectedRoute><SettingLogic /></ProtectedRoute>} />
           <Route path="/sessions" element={<ProtectedRoute><SessionsListLogic /></ProtectedRoute>} />
           <Route path="/user" element={<ProtectedRoute><UserManagementLogic /></ProtectedRoute>} />

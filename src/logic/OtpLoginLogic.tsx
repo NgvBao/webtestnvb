@@ -52,7 +52,7 @@ function OtpLoginLogic() {
       });
 
       setInfo(res.data.message || res.message || "Đăng nhập thành công!");
-      navigate("/dashboard");
+      navigate("/project");
     } finally {
       setLoadingSubmit(false);
     }

@@ -1,4 +1,3 @@
-// src/pages/ProjectManagementPage.tsx
 import React from "react";
 import Sidebar from "../components/sidebar";
 import ModalForm from "../components/Modal";
@@ -14,10 +13,11 @@ export type Project = {
   description: string;
   performance: string;
   createdAt: string;
-  status: string; // nhận enum thô từ BE: NOT_STARTED/ACTIVE/...
+  status: string;
 };
 
 type ProjectManagementPageProps = {
+  // Data + search
   projects: Project[];
   searchTerm: string;
   setSearchTerm: (s: string) => void;
@@ -33,33 +33,22 @@ type ProjectManagementPageProps = {
   onCreateSubmit: (name: string, description: string) => void;
   loadingCreate?: boolean;
 
-  // Detail modal
-  detailData: Project | null;
-  onOpenDetail: (p: Project) => void;
-  onDetailChange: (p: Project) => void;
-  onCloseDetail: () => void;
-  onSaveDetail: () => void;
-  onDeleteDetail: () => void;
-  loadingSaveDetail?: boolean;
-  loadingDeleteDetail?: boolean;
+  // Actions (từ Logic)
+  onManageClick?: (p: Project) => void;
+  onDeleteClick?: (p: Project) => void;
 
-  // Extra
+  // Loading trong bảng & xoá theo hàng
   loadingList?: boolean;
+  loadingDeleteId?: string | null;   // per-row spinner
 };
 
 const statusClass = (s: string) => {
-  // Map enum -> class cho badge
   switch (s) {
-    case "ACTIVE":
-      return "status-active";
-    case "NOT_STARTED":
-      return "status-notstarted";
-    case "PAUSED":
-      return "status-paused";
-    case "COMPLETED":
-      return "status-completed";
-    default:
-      return "status-unknown";
+    case "ACTIVE": return "status-active";
+    case "NOT_STARTED": return "status-notstarted";
+    case "PAUSED": return "status-paused";
+    case "COMPLETED": return "status-completed";
+    default: return "status-unknown";
   }
 };
 
@@ -78,92 +67,105 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   onCreateSubmit,
   loadingCreate,
 
-  detailData,
-  onOpenDetail,
-  onDetailChange,
-  onCloseDetail,
-  onSaveDetail,
-  onDeleteDetail,
-  loadingSaveDetail,
-  loadingDeleteDetail,
+  onManageClick,
+  onDeleteClick,
 
   loadingList,
+  loadingDeleteId,
 }) => {
-  // ===== Fields (Detail) =====
-  const detailFields = [
-    { key: "name",           label: "Project Name",  editable: true },
-    { key: "windfarmCount",  label: "Windfarms",     editable: false },
-    { key: "description",    label: "Description",   editable: true,  type: "textarea" as const },
-    { key: "performance",    label: "Performance",   editable: false },
-    { key: "createdAt",      label: "Created At",    editable: false },
-    { key: "status",         label: "Status",        editable: false },
-  ];
-
-  const detailValues: Record<string, string> = detailData
-    ? {
-        name: detailData.name ?? "",
-        windfarmCount: String(detailData.windfarmCount ?? ""),
-        description: detailData.description ?? "",
-        performance: detailData.performance ?? "",
-        createdAt: detailData.createdAt ?? "",
-        status: String(detailData.status ?? ""),
-      }
-    : { name: "", windfarmCount: "", description: "", performance: "", createdAt: "", status: "" };
-
-  const handleDetailFieldChange = (key: string, value: string) => {
-    if (!detailData) return;
-    if (key === "name")        onDetailChange({ ...detailData, name: value });
-    if (key === "description") onDetailChange({ ...detailData, description: value });
-  };
-
-  // ===== Fields (Create) =====
+  // ===== Create Modal fields =====
   const createFields = [
-    { key: "name",        label: "Project Name", editable: true },
-    { key: "description", label: "Description",  editable: true, type: "textarea" as const },
+    { key: "name", label: "Project Name", editable: true },
+    { key: "description", label: "Description", editable: true, type: "textarea" as const },
   ];
-  const createValues: Record<string, string> = {
-    name: newName,
-    description: newDescription,
-  };
+  const createValues: Record<string, string> = { name: newName, description: newDescription };
 
-  // ===== Columns =====
+  // ===== Columns (áp dụng align + sortable) =====
   const columns: Column<Project>[] = [
-    { key: "index", header: "#", size: 0.06, render: (_row, i) => i + 1 },
-    { key: "name", header: "Project", size: 0.26, className: "project" },
-    { key: "createdAt", header: "Created", size: 0.16, className: "created" },
+    {
+      key: "index",
+      header: "#",
+      size: 0.06,
+      align: "center",
+      sortable: false,
+      render: (_row, i) => i + 1,
+      headerClassName: "col-center",
+      className: "col-center",
+    },
+    {
+      key: "name",
+      header: "Project",
+      size: 0.26,
+      sortable: true,
+      sortAccessor: (r) => r.name.toLowerCase(),
+      className: "project",
+    },
+    {
+      key: "createdAt",
+      header: "Created",
+      size: 0.16,
+      align: "right",
+      sortable: true,
+      // ISO string sort được luôn; nếu muốn chắc ăn: new Date(r.createdAt).getTime()
+      sortAccessor: (r) => r.createdAt || "",
+      className: "created",
+      headerClassName: "col-right",
+    },
     {
       key: "windfarmCount",
       header: "Windfarms",
       size: 0.12,
-      className: "windfarms",
-      render: (p) => (
-        <span style={{ display: "inline-block", width: "100%", textAlign: "center" }}>
-          {p.windfarmCount}
-        </span>
-      ),
+      align: "center",
+      sortable: true,
+      sortAccessor: (r) => r.windfarmCount,
+      className: "windfarms col-center",
+      headerClassName: "col-center",
+      render: (p) => p.windfarmCount,
     },
-    { key: "performance", header: "Performance", size: 0.16, className: "performance" },
+    {
+      key: "performance",
+      header: "Performance",
+      size: 0.16,
+      sortable: false,
+      className: "performance",
+    },
     {
       key: "status",
       header: "Status",
       size: 0.12,
-      className: "status",
+      align: "center",
+      sortable: true,
+      sortAccessor: (r) => r.status,
+      className: "status col-center",
+      headerClassName: "col-center",
       render: (p) => <span className={statusClass(String(p.status))}>{p.status}</span>,
     },
     {
       key: "actions",
-      header: "Actions",
-      size: 0.12,
+      header: "Action",
+      size: 0.18,
+      align: "left",
+      sortable: false,
       className: "action-cell",
       render: (p) => (
         <>
-          <Button variant="detail" style={{ marginRight: "0.5rem" }} onClick={() => onOpenDetail(p)}>
-            Detail
+          <Button
+            variant="detail"
+            style={{ marginRight: "0.5rem" }}
+            onClick={(e: any) => {
+              e.stopPropagation(); // chặn nổi bọt nếu sau này bạn bật onRowClick
+              onManageClick?.(p);
+            }}
+          >
+            Management
           </Button>
           <Button
             variant="delete"
-            onClick={() => onDeleteDetail()}
-            loading={!!loadingDeleteDetail /* có thể đổi theo per-row id nếu cần */}
+            onClick={(e: any) => {
+              e.stopPropagation();
+              onDeleteClick?.(p);
+            }}
+            loading={loadingDeleteId === p.id}
           >
             Delete
           </Button>
@@ -191,20 +193,36 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-
-            <button className="btn-create" onClick={onCreateClick}>
-              + Create
-            </button>
+            <div className="toolbar-actions">
+              <Button variant="submit" onClick={onCreateClick} loading={!!loadingCreate}>
+                + Create
+              </Button>
+            </div>
           </div>
 
-          {/* Loading / Empty / Table */}
-          {loadingList ? (
-            <div className="list-loading">Loading projects…</div>
-          ) : projects.length === 0 ? (
-            <div className="list-empty">No projects</div>
-          ) : (
-            <GenericTable<Project> data={projects} columns={columns} />
-          )}
+          {/* Bảng (dùng props mới: loading, emptyText, stickyHeader, cellProps) */}
+          <div className="table-section">
+            <GenericTable<Project>
+              data={projects}
+              columns={columns}
+              loading={!!loadingList}
+              emptyText="No projects"
+              stickyHeader
+              // auto tooltip text dài; mặc định true trong table mới
+              cellProps={(row, col) => {
+                // chặn nổi bọt khi click vào ô Action
+                if (col.key === "actions") {
+                  return {
+                    onClick: (e) => e.stopPropagation(),
+                  };
+                }
+                return {};
+              }}
+              // nếu sau này muốn click cả dòng để vào trang quản lý:
+              // onRowClick={(p) => onManageClick?.(p)}
+              rowClassName={(_r) => undefined}
+            />
+          </div>
         </div>
       </main>
 
@@ -223,9 +241,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
           onSave={() => onCreateSubmit(newName.trim(), newDescription.trim())}
           footer={
             <>
-              <Button variant="cancel" onClick={onCancelCreate}>
-                Cancel
-              </Button>
+              <Button variant="cancel" onClick={onCancelCreate}>Cancel</Button>
               <Button
                 variant="submit"
                 onClick={() => onCreateSubmit(newName.trim(), newDescription.trim())}
@@ -233,32 +249,6 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
                 disabled={!newName.trim()}
               >
                 Create
-              </Button>
-            </>
-          }
-        />
-      )}
-
-      {/* Detail Modal */}
-      {detailData && (
-        <ModalForm
-          isOpen={!!detailData}
-          header="Project Detail"
-          fields={detailFields as any}
-          values={detailValues}
-          onChange={handleDetailFieldChange}
-          onClose={onCloseDetail}
-          onSave={onSaveDetail}
-          footer={
-            <>
-              <Button variant="cancel" onClick={onCloseDetail}>
-                Close
-              </Button>
-              <Button variant="delete" onClick={onDeleteDetail} loading={!!loadingDeleteDetail}>
-                Delete
-              </Button>
-              <Button variant="submit" onClick={onSaveDetail} loading={!!loadingSaveDetail}>
-                Save
               </Button>
             </>
           }
