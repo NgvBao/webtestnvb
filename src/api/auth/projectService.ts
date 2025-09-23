@@ -3,7 +3,6 @@ import { api, type ApiResult } from "../core";
 import { PROJECTS } from "../endpoints";
 import type {
   ProjectCreateRequest,
-  ProjectUpdateRequest,
   ProjectResponse,
   ProjectListResponse,
   ProjectStatusEnum,
