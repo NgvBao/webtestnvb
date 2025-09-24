@@ -53,22 +53,31 @@ const MemberProjectLogic: React.FC<Props> = ({
   const refresh = useCallback(() => setReloadKey((k) => k + 1), []);
 
   // fetch members (paged)
-  useEffect(() => {
-    const ctrl = new AbortController();
-    setLoadingList(true);
-    memberService
-      .list(projectId, { limit, offset }, ctrl.signal)
-      .then((res) => {
-        if (!res.ok) {
-          alert(res.message || "Failed to load project members");
-          return;
-        }
-        setMembers(res.data.members);
-        setTotal(res.data.total ?? 0);
-      })
-      .finally(() => setLoadingList(false));
-    return () => ctrl.abort();
-  }, [projectId, limit, offset, reloadKey]);
+useEffect(() => {
+  const ctrl = new AbortController();
+  setLoadingList(true);
+
+  memberService
+    .list(projectId, { limit, offset }, ctrl.signal)
+    .then((res) => {
+      // ✅ Nếu request bị hủy thì bỏ qua luôn
+      if (res.message === "canceled") return;
+
+      // ❌ Nếu có lỗi khác thì alert
+      if (!res.ok) {
+        alert(res.message || "Failed to load project members");
+        return;
+      }
+
+      // ✅ Nếu thành công thì cập nhật state
+      setMembers(res.data.members);
+      setTotal(res.data.total ?? 0);
+    })
+    .finally(() => setLoadingList(false));
+
+  return () => ctrl.abort();
+}, [projectId, limit, offset, reloadKey]);
+
 
   // fetch suggestions
   useEffect(() => {

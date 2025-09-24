@@ -1,21 +1,32 @@
-// src/core.ts
 import axios from "axios";
 import type { AxiosError, AxiosResponse } from "axios";
 
 export type ApiOk<T> = { ok: true; data: T; message?: string; status: number };
-export type ApiErr   = { ok: false; data: null; message: string; status: number };
+export type ApiErr = { ok: false; data: null; message: string; status: number };
 export type ApiResult<T> = ApiOk<T> | ApiErr;
 
 // -------------------- utils --------------------
+function extractMessage(payload: any, fallback: string): string {
+  if (!payload || typeof payload !== "object") return fallback;
+
+  // Ưu tiên các trường thường gặp
+  if ("message" in payload && payload.message) return String(payload.message);
+  if ("detail" in payload) {
+    if (typeof payload.detail === "string") return String(payload.detail);
+    if (typeof payload.detail === "object" && "message" in payload.detail) {
+      return String(payload.detail.message);
+    }
+  }
+  return fallback;
+}
+
 function toOk<T>(res: AxiosResponse<T>): ApiOk<T> {
   const anyData = res.data as any;
+  const msg = extractMessage(anyData, "");
   return {
     ok: true,
     data: res.data,
-    message:
-      anyData && typeof anyData === "object" && "message" in anyData
-        ? (anyData.message as string)
-        : undefined,
+    message: msg || undefined,
     status: res.status,
   };
 }
@@ -23,13 +34,8 @@ function toOk<T>(res: AxiosResponse<T>): ApiOk<T> {
 function toErr(error: AxiosError): ApiErr {
   const status = error.response?.status ?? 0;
   const payload = error.response?.data as any;
-  const msg =
-    (payload && typeof payload === "object" && "message" in payload && payload.message) ||
-    error.message ||
-    "Request failed";
-  // Optional redirect:
-  // if (status === 401) window.location.href = "/login";
-  return { ok: false, data: null, message: String(msg), status };
+  const msg = extractMessage(payload, error.message || "Request failed");
+  return { ok: false, data: null, message: msg, status };
 }
 
 // -------------------- axios instance --------------------
@@ -39,16 +45,19 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
-// keep interceptors *side-effect only*, don't change return types
+// giữ interceptors *side-effect only*
 apiClient.interceptors.request.use((config) => config);
 apiClient.interceptors.response.use(
-  (res) => res,                         // ✅ giữ nguyên AxiosResponse
-  (err) => Promise.reject(err)          // ✅ để helpers xử lý non-throw
+  (res) => res, // ✅ giữ nguyên AxiosResponse
+  (err) => Promise.reject(err) // ✅ để helpers xử lý non-throw
 );
 
 // -------------------- typed helpers --------------------
 export const api = {
-  get: async <T>(url: string, config?: Parameters<typeof apiClient.get>[1]): Promise<ApiResult<T>> => {
+  get: async <T>(
+    url: string,
+    config?: Parameters<typeof apiClient.get>[1]
+  ): Promise<ApiResult<T>> => {
     try {
       const res = await apiClient.get<T>(url, config);
       return toOk(res);
@@ -57,7 +66,11 @@ export const api = {
     }
   },
 
-  post: async <T>(url: string, data?: any, config?: Parameters<typeof apiClient.post>[2]): Promise<ApiResult<T>> => {
+  post: async <T>(
+    url: string,
+    data?: any,
+    config?: Parameters<typeof apiClient.post>[2]
+  ): Promise<ApiResult<T>> => {
     try {
       const res = await apiClient.post<T>(url, data, config);
       return toOk(res);
@@ -66,7 +79,11 @@ export const api = {
     }
   },
 
-  put: async <T>(url: string, data?: any, config?: Parameters<typeof apiClient.put>[2]): Promise<ApiResult<T>> => {
+  put: async <T>(
+    url: string,
+    data?: any,
+    config?: Parameters<typeof apiClient.put>[2]
+  ): Promise<ApiResult<T>> => {
     try {
       const res = await apiClient.put<T>(url, data, config);
       return toOk(res);
@@ -75,7 +92,10 @@ export const api = {
     }
   },
 
-  delete: async <T>(url: string, config?: Parameters<typeof apiClient.delete>[1]): Promise<ApiResult<T>> => {
+  delete: async <T>(
+    url: string,
+    config?: Parameters<typeof apiClient.delete>[1]
+  ): Promise<ApiResult<T>> => {
     try {
       const res = await apiClient.delete<T>(url, config);
       return toOk(res);

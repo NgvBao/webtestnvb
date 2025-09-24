@@ -1,5 +1,5 @@
 import React from "react";
-import "../components styles/button.css";
+import "../components styles/button.css"; // ✅ fix đường dẫn: không có dấu cách
 
 type Variant = "cancel" | "delete" | "submit" | "approve" | "detail";
 
@@ -26,13 +26,25 @@ const getLoadingLabel = (variant: Variant) => {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { children, variant = "submit", loading, hidden, className, disabled, ...rest },
+    {
+      children,
+      variant = "submit",
+      loading,
+      hidden,
+      className,
+      disabled,
+      type,
+      ...rest
+    },
     ref
   ) => {
     return (
       <button
         ref={ref}
-        className={`btn btn-${variant} ${hidden ? "hidden" : ""} ${className ?? ""}`}
+        type={type || "button"} // ✅ fix: mặc định là button, không bị submit form
+        className={`btn btn-${variant} ${hidden ? "hidden" : ""} ${
+          className ?? ""
+        }`}
         disabled={disabled || loading}
         aria-busy={loading}
         {...rest}

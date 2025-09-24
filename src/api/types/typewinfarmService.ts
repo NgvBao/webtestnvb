@@ -1,10 +1,10 @@
-// src/types/windfarms.ts
 export type ISODate = string;
 
-/** Dùng cho cả list & detail theo schema hiện có */
+/** Entity — trả về ở cả list & detail */
 export interface WindfarmEntity {
   id: string;
   name: string;
+  description?: string | null;
   own_company?: string | null;
   location?: string | null;
 
@@ -15,23 +15,24 @@ export interface WindfarmEntity {
   updated_at?: ISODate | null;
   created_by?: string | null;
 
-  turbine_count: number; // BE trả trong list/detail theo ví dụ
+  turbine_count: number;
 }
 
-/** ----- REQUESTS: CHỈ 3 FIELD NHƯ DOC ----- */
+/** ----- REQUESTS ----- */
 export interface WindfarmCreateRequest {
-  name: string;            // required theo mô tả
-  location: string;        // required theo mô tả
-  own_company?: string;    // optional
+  name: string;         // required
+  location: string;     // required
+  description?: string;
+  own_company?: string;
 }
 
 export interface WindfarmUpdateRequest {
   name?: string;
   location?: string;
+  description?: string;
   own_company?: string;
 }
 
-/** ----- BATCH CREATE ----- */
 export interface WindfarmBatchCreateRequest {
   count: number;
   name_prefix: string;
@@ -51,9 +52,11 @@ export interface WindfarmBatchResponse {
   errors: string[];
 }
 
-/** Bulk delete theo doc: body là string[]; response hiện hiển thị "string" */
-export type WindfarmBulkDeleteResult = string | {
-  deleted_count?: number;
-  total_requested?: number;
-  errors?: string[];
-};
+/** Bulk delete: body là string[], response BE hiện có thể chỉ là "string" */
+export type WindfarmBulkDeleteResult =
+  | string
+  | {
+      deleted_count?: number;
+      total_requested?: number;
+      errors?: string[];
+    };

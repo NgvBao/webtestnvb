@@ -1,4 +1,4 @@
-// src/pages/WinfarmPage.tsx
+// src/pages/TurbinePage.tsx
 import React from "react";
 import Sidebar from "../components/sidebar";
 import Button from "../components/button";
@@ -9,31 +9,40 @@ import type { FieldColumn } from "../components/Modal";
 import "../styles/ProjectManagementPage.css";
 import Breadcrumb from "../components/breadcrumb";
 
-export type WindfarmUI = {
+export type TurbineUI = {
   id: string;
   name: string;
   description?: string;
-  own_company?: string;
-  location: string;
 
-  projectId: string;
-  projectName?: string;
+  windfarmId: string;
+  windfarmName?: string;
+
+  serialNo?: string;
+  capacityMw?: number;
+  coordinates?: string;
 
   createdAt?: string;
   updatedAt?: string;
   createdBy?: string;
-
-  turbineCount?: number;
 };
 
-type CreateValues = { name: string; location: string };
+type CreateValues = {
+  name: string;
+  serialNo?: string;
+  capacityMw?: string; // input text, convert to number ở logic
+  coordinates?: string;
+  description?: string;
+};
 
 type Props = {
+  // context
   projectId?: string;
   projectName?: string;
+  windfarmId?: string;
+  windfarmName?: string;
 
   // list
-  windfarms: WindfarmUI[];
+  turbines: TurbineUI[];
   loadingList?: boolean;
   searchTerm: string;
   setSearchTerm: (s: string) => void;
@@ -55,7 +64,7 @@ type Props = {
 
   // detail/edit
   showDetailModal: boolean;
-  onOpenDetail: (wf: WindfarmUI) => void;
+  onOpenDetail: (tb: TurbineUI) => void;
   onCloseDetail: () => void;
   detailValues: Record<string, string>;
   setDetailValue: (k: string, v: string) => void;
@@ -64,20 +73,23 @@ type Props = {
   loadingUpdate?: boolean;
 
   // delete
-  onDelete: (wf: WindfarmUI) => void;
+  onDelete: (tb: TurbineUI) => void;
   loadingDeleteId?: string | null;
 
-  // 👇 NEW: click row để đi trang turbine
-  onRowClick?: (wf: WindfarmUI) => void;
+  // optional row click
+  onRowClick?: (tb: TurbineUI) => void;
 };
 
-const truncate = (s: string | undefined, n = 120) =>
+const truncate = (s?: string, n = 120) =>
   (s ?? "").length > n ? `${s!.slice(0, n)}…` : (s ?? "");
 
-const WindfarmPage: React.FC<Props> = ({
+const TurbinePage: React.FC<Props> = ({
   projectId,
   projectName,
-  windfarms,
+  windfarmId,
+  windfarmName,
+
+  turbines,
   loadingList,
   searchTerm,
   setSearchTerm,
@@ -106,28 +118,27 @@ const WindfarmPage: React.FC<Props> = ({
   onDelete,
   loadingDeleteId,
 
-  // NEW:
   onRowClick,
 }) => {
-  const columns: Column<WindfarmUI>[] = [
+  const columns: Column<TurbineUI>[] = [
     { key: "index", header: "#", align: "center", render: (_r, i) => i + 1, headerClassName: "col-center", className: "col-center" },
-    { key: "name", header: "Windfarm", sortable: true, sortAccessor: (r) => r.name.toLowerCase(), className: "project" },
-    { key: "location", header: "Location", sortable: true, sortAccessor: (r) => r.location.toLowerCase() },
+    { key: "name", header: "Turbine", sortable: true, sortAccessor: (r) => r.name.toLowerCase(), className: "project" },
+    { key: "serialNo", header: "Serial No.", sortable: true, sortAccessor: (r) => (r.serialNo ?? "").toLowerCase() },
+    { key: "capacityMw", header: "Capacity (MW)", align: "right", sortable: true, sortAccessor: (r) => r.capacityMw ?? 0 },
+    { key: "coordinates", header: "Coordinates", sortable: true, sortAccessor: (r) => (r.coordinates ?? "").toLowerCase() },
     { key: "description", header: "Description", sortable: true, sortAccessor: (r) => (r.description ?? "").toLowerCase(), render: (r) => truncate(r.description, 140) },
-    { key: "own_company", header: "Own Company", sortable: true, sortAccessor: (r) => (r.own_company ?? "").toLowerCase() },
-    { key: "projectName", header: "Project", sortable: true, sortAccessor: (r) => (r.projectName ?? "").toLowerCase() },
+    { key: "windfarmName", header: "Windfarm", sortable: true, sortAccessor: (r) => (r.windfarmName ?? "").toLowerCase() },
     { key: "createdAt", header: "Created At", sortable: true, sortAccessor: (r) => (r.createdAt ?? "") },
     { key: "updatedAt", header: "Updated At", sortable: true, sortAccessor: (r) => (r.updatedAt ?? "") },
-    { key: "turbineCount", header: "Turbines", align: "right", sortable: true, sortAccessor: (r) => r.turbineCount ?? 0 },
     {
       key: "actions",
       header: "Action",
-      render: (wf) => (
+      render: (tb) => (
         <>
-          <Button variant="detail" style={{ marginRight: 8 }} onClick={(e: any) => { e.stopPropagation(); onOpenDetail(wf); }}>
+          <Button variant="detail" style={{ marginRight: 8 }} onClick={(e: any) => { e.stopPropagation(); onOpenDetail(tb); }}>
             Detail
           </Button>
-          <Button variant="delete" onClick={(e: any) => { e.stopPropagation(); onDelete(wf); }} loading={loadingDeleteId === wf.id}>
+          <Button variant="delete" onClick={(e: any) => { e.stopPropagation(); onDelete(tb); }} loading={loadingDeleteId === tb.id}>
             Delete
           </Button>
         </>
@@ -144,25 +155,28 @@ const WindfarmPage: React.FC<Props> = ({
 
   const createFields: FieldColumn[] = [
     { key: "name", label: "Name", type: "text", editable: true },
-    { key: "location", label: "Location", type: "text", editable: true },
+    { key: "serialNo", label: "Serial No.", type: "text", editable: true },
+    { key: "capacityMw", label: "Capacity (MW)", type: "number", editable: true },
+    { key: "coordinates", label: "Coordinates (lat,lng)", type: "text", editable: true },
+    { key: "description", label: "Description", type: "textarea", editable: true },
   ];
 
   const detailFields: FieldColumn[] = [
     { key: "id", label: "ID", type: "text", editable: false },
-    { key: "projectId", label: "Project ID", type: "text", editable: false },
-    { key: "projectName", label: "Project Name", type: "text", editable: false },
+    { key: "windfarmId", label: "Windfarm ID", type: "text", editable: false },
+    { key: "windfarmName", label: "Windfarm Name", type: "text", editable: false },
     { key: "name", label: "Name", type: "text", editable: true },
-    { key: "location", label: "Location", type: "text", editable: true },
+    { key: "serialNo", label: "Serial No.", type: "text", editable: true },
+    { key: "capacityMw", label: "Capacity (MW)", type: "number", editable: true },
+    { key: "coordinates", label: "Coordinates", type: "text", editable: true },
     { key: "description", label: "Description", type: "textarea", editable: true },
-    { key: "own_company", label: "Own Company", type: "text", editable: true },
-    { key: "turbineCount", label: "Turbines", type: "number", editable: false },
     { key: "createdAt", label: "Created At", type: "text", editable: false },
     { key: "updatedAt", label: "Updated At", type: "text", editable: false },
     { key: "createdBy", label: "Created By", type: "text", editable: false },
   ];
 
-  const canCreate = createValues.name.trim() && createValues.location.trim();
-  const canSaveDetail = (detailValues.name ?? "").trim() && (detailValues.location ?? "").trim();
+  const canCreate = createValues.name.trim();
+  const canSaveDetail = (detailValues.name ?? "").trim();
 
   return (
     <div className="ProjectManagementPage">
@@ -174,7 +188,8 @@ const WindfarmPage: React.FC<Props> = ({
               items={[
                 { label: "Projects", path: "/project-management" },
                 projectName ? { label: projectName, path: projectId ? `/project/${projectId}` : undefined } : undefined,
-                { label: "Windfarms" },
+                windfarmName ? { label: windfarmName, path: windfarmId ? `/winfarm/${windfarmId}` : undefined } : undefined,
+                { label: "Turbines" },
               ].filter(Boolean) as any}
             />
           </div>
@@ -183,7 +198,7 @@ const WindfarmPage: React.FC<Props> = ({
             <input
               type="text"
               className="search-input"
-              placeholder={`Search by name/location${projectName ? ` in ${projectName}` : ""}...`}
+              placeholder={`Search by name/serial${windfarmName ? ` in ${windfarmName}` : ""}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -193,18 +208,17 @@ const WindfarmPage: React.FC<Props> = ({
           </div>
 
           <div className="table-section">
-            <GenericTable<WindfarmUI>
-              data={windfarms}
+            <GenericTable<TurbineUI>
+              data={turbines}
               columns={columns}
               loading={!!loadingList}
-              emptyText="No windfarms"
+              emptyText="No turbines"
               stickyHeader
               cellProps={(_row, col) => col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}}
               page={page}
               pageSize={pageSize}
               total={total}
               onPageChange={handlePageChange}
-              // 👇 NEW
               onRowClick={onRowClick}
             />
           </div>
@@ -214,7 +228,7 @@ const WindfarmPage: React.FC<Props> = ({
       {showCreateModal && (
         <ModalForm
           isOpen={showCreateModal}
-          header="Create Windfarm"
+          header="Create Turbine"
           fields={createFields}
           values={createValues}
           onChange={(k, v) => setCreateValues(k as keyof CreateValues, v)}
@@ -234,7 +248,7 @@ const WindfarmPage: React.FC<Props> = ({
       {showDetailModal && (
         <ModalForm
           isOpen={showDetailModal}
-          header="Windfarm Detail"
+          header="Turbine Detail"
           fields={detailFields}
           values={detailValues}
           onChange={(k, v) => setDetailValue(k, v)}
@@ -254,4 +268,4 @@ const WindfarmPage: React.FC<Props> = ({
   );
 };
 
-export default WindfarmPage;
+export default TurbinePage;

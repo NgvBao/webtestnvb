@@ -1,4 +1,3 @@
-// src/logic/LoginLogic.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginPage from "../pages/LoginPage";
@@ -8,6 +7,7 @@ function LoginLogic() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [info, setInfo] = useState(""); // ✅ thêm info message
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -15,6 +15,7 @@ function LoginLogic() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     setLoading(true);
 
     const identifier = username.trim();
@@ -29,7 +30,7 @@ function LoginLogic() {
       const loginRes = await authServiceLong.login({ identifier, password });
 
       if (!loginRes.ok) {
-        setError(loginRes.message || "Có lỗi xảy ra, vui lòng thử lại.");
+        setError(loginRes.message ?? "Đăng nhập thất bại, vui lòng thử lại.");
         return;
       }
 
@@ -39,7 +40,9 @@ function LoginLogic() {
       // (Tuỳ chọn) gửi lại OTP ngay sau khi điều hướng
       const resendRes = await authServiceLong.resendOtp();
       if (!resendRes.ok) {
-        console.error("Resend OTP failed:", resendRes.message);
+        setError(resendRes.message ?? "Không gửi lại OTP được.");
+      } else {
+        setInfo("OTP đã được gửi lại. Vui lòng kiểm tra email/SMS.");
       }
     } finally {
       setLoading(false);
@@ -51,6 +54,7 @@ function LoginLogic() {
       username={username}
       password={password}
       error={error}
+      info={info}
       loading={loading}
       onUsernameChange={setUsername}
       onPasswordChange={setPassword}

@@ -1,4 +1,3 @@
-// src/api/windfarms.ts
 import { api } from "../core";
 import { WINDFARMS } from "../endpoints";
 import type { ApiResult } from "../core";
@@ -40,7 +39,7 @@ export const windfarmService = {
     });
   },
 
-  /** GET /windfarms/all */
+  /** GET /windfarms/list (admin only) */
   listAll: (params?: {
     limit?: number;
     offset?: number;
@@ -64,7 +63,7 @@ export const windfarmService = {
   remove: (windfarm_id: string): Promise<ApiResult<null>> =>
     api.delete(WINDFARMS.DELETE(windfarm_id)),
 
-  /** DELETE /windfarms/bulk — body là string[] theo doc */
+  /** DELETE /windfarms/bulk — body là string[] */
   bulkDelete: (
     windfarm_ids: string[]
   ): Promise<ApiResult<WindfarmBulkDeleteResult>> =>

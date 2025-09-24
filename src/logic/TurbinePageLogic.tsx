@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import TurbinePage, { type TurbineUI } from "../pages/TurbinePage";
 import { turbineService } from "../api/auth/turbineService";
 import type { Turbine } from "../api/types/typeturbineService";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation} from "react-router-dom";
 
 type LocationState = {
   project?: { id: string; name: string };
@@ -66,6 +66,7 @@ const TurbinePageLogic: React.FC = () => {
   const projectId = locState.project?.id || "";
   const projectName = locState.project?.name || "";
 
+  // list state
   const [turbines, setTurbines] = useState<TurbineUI[]>([]);
   const [loadingList, setLoadingList] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -74,25 +75,33 @@ const TurbinePageLogic: React.FC = () => {
   const [limit, setLimit] = useState(50);
   const [offset, setOffset] = useState(0);
 
+  // create state
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createValues, setCreateValuesState] = useState<CreateValues>({ name: "" });
   const setCreateValues = (k: keyof CreateValues, v: string) =>
     setCreateValuesState((s) => ({ ...s, [k]: v }));
   const [loadingCreate, setLoadingCreate] = useState(false);
 
+  // detail state
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailValues, setDetailValues] = useState<Record<string, string>>({});
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
 
+  // delete
   const [loadingDeleteId, setLoadingDeleteId] = useState<string | null>(null);
 
+  // fetch list
   useEffect(() => {
     if (!windfarmId) return;
     const ctrl = new AbortController();
     setLoadingList(true);
     turbineService
-      .listByWindfarm(windfarmId, { limit, offset, search: debouncedSearch || undefined }, ctrl.signal)
+      .listByWindfarm(
+        windfarmId,
+        { limit, offset, search: debouncedSearch || undefined },
+        ctrl.signal
+      )
       .then((res) => {
         if (res.message === "canceled") return;
         if (!res.ok) {
@@ -109,6 +118,7 @@ const TurbinePageLogic: React.FC = () => {
     return () => ctrl.abort();
   }, [windfarmId, limit, offset, debouncedSearch]);
 
+  // create
   const onOpenCreate = () => setShowCreateModal(true);
   const onCloseCreate = () => setShowCreateModal(false);
 
@@ -135,6 +145,7 @@ const TurbinePageLogic: React.FC = () => {
           alert(res.message || "Create turbine failed");
           return;
         }
+        // refresh first page
         setOffset(0);
         setShowCreateModal(false);
         setCreateValuesState({ name: "" });
@@ -142,6 +153,7 @@ const TurbinePageLogic: React.FC = () => {
       .finally(() => setLoadingCreate(false));
   };
 
+  // detail
   const onOpenDetail = (tb: TurbineUI) => {
     setLoadingDetail(true);
     setDetailValues({
@@ -180,7 +192,11 @@ const TurbinePageLogic: React.FC = () => {
         const ctrl = new AbortController();
         setLoadingList(true);
         turbineService
-          .listByWindfarm(windfarmId, { limit, offset, search: debouncedSearch || undefined }, ctrl.signal)
+          .listByWindfarm(
+            windfarmId,
+            { limit, offset, search: debouncedSearch || undefined },
+            ctrl.signal
+          )
           .then((r2) => {
             if (r2.ok) {
               setTurbines(r2.data.turbines.map(mapApiToUI));
@@ -193,6 +209,7 @@ const TurbinePageLogic: React.FC = () => {
       .finally(() => setLoadingUpdate(false));
   };
 
+  // delete
   const onDelete = (tb: TurbineUI) => {
     if (!confirm(`Delete turbine "${tb.name}"?`)) return;
     setLoadingDeleteId(tb.id);
@@ -206,7 +223,11 @@ const TurbinePageLogic: React.FC = () => {
         const ctrl = new AbortController();
         setLoadingList(true);
         turbineService
-          .listByWindfarm(windfarmId, { limit, offset, search: debouncedSearch || undefined }, ctrl.signal)
+          .listByWindfarm(
+            windfarmId,
+            { limit, offset, search: debouncedSearch || undefined },
+            ctrl.signal
+          )
           .then((r2) => {
             if (r2.ok) {
               setTurbines(r2.data.turbines.map(mapApiToUI));
@@ -218,6 +239,7 @@ const TurbinePageLogic: React.FC = () => {
       .finally(() => setLoadingDeleteId(null));
   };
 
+  // optional row click
   const onRowClick = (_tb: TurbineUI) => {};
 
   const setCreateValuesProxy = (k: keyof CreateValues, v: string) => setCreateValues(k, v);

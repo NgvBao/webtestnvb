@@ -57,6 +57,21 @@ const statusClass = (s: string) => {
   }
 };
 
+// ---- Format hh:mm:ss dd/mm/yy (local time) ----
+const formatDate = (iso?: string) => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "-";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const dd = pad(d.getDate());
+  const mm = pad(d.getMonth() + 1);
+  const yy = String(d.getFullYear()).slice(-2);
+  const hh = pad(d.getHours());
+  const mi = pad(d.getMinutes());
+  const ss = pad(d.getSeconds());
+  return `${hh}:${mi}:${ss} ${dd}/${mm}/${yy}`;
+};
+
 const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   projects,
   searchTerm,
@@ -81,12 +96,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   // ===== Create Modal fields =====
   const createFields = [
     { key: "name", label: "Project Name", editable: true },
-    {
-      key: "description",
-      label: "Description",
-      editable: true,
-      type: "textarea" as const,
-    },
+    { key: "description", label: "Description", editable: true, type: "textarea" as const },
   ];
   const createValues: Record<string, string> = {
     name: newName,
@@ -98,17 +108,17 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
     {
       key: "index",
       header: "#",
-      size: 0.06,
+      size: 0.02,
       align: "center",
       sortable: false,
-      render: (_row, i) => i + 1, // ✅ _row thay vì row
+      render: (_row, i) => i + 1,
       headerClassName: "col-center",
       className: "col-center",
     },
     {
       key: "name",
       header: "Project",
-      size: 0.26,
+      size: 0.24,
       sortable: true,
       sortAccessor: (r) => r.name.toLowerCase(),
       className: "project",
@@ -122,6 +132,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       sortAccessor: (r) => r.createdAt || "",
       className: "created",
       headerClassName: "col-right",
+      render: (p) => formatDate(p.createdAt), // 👈 chuẩn hóa hiển thị
     },
     {
       key: "windfarmCount",
@@ -150,9 +161,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       sortAccessor: (r) => r.status,
       className: "status col-center",
       headerClassName: "col-center",
-      render: (p) => (
-        <span className={statusClass(String(p.status))}>{p.status}</span>
-      ),
+      render: (p) => <span className={statusClass(String(p.status))}>{p.status}</span>,
     },
     {
       key: "actions",
@@ -208,11 +217,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <div className="toolbar-actions">
-              <Button
-                variant="submit"
-                onClick={onCreateClick}
-                loading={!!loadingCreate}
-              >
+              <Button variant="submit" onClick={onCreateClick} loading={!!loadingCreate}>
                 + Create
               </Button>
             </div>
@@ -226,12 +231,9 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
               loading={!!loadingList}
               emptyText="No projects"
               stickyHeader
-              cellProps={(_row, col) => {
-                if (col.key === "actions") {
-                  return { onClick: (e) => e.stopPropagation() };
-                }
-                return {};
-              }}
+              cellProps={(_row, col) =>
+                col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
+              }
               // onRowClick={(p) => onManageClick?.(p)}
               rowClassName={(_r) => undefined}
             />
@@ -251,9 +253,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
             if (key === "description") setNewDescription(v);
           }}
           onClose={onCancelCreate}
-          onSave={() =>
-            onCreateSubmit(newName.trim(), newDescription.trim())
-          }
+          onSave={() => onCreateSubmit(newName.trim(), newDescription.trim())}
           footer={
             <>
               <Button variant="cancel" onClick={onCancelCreate}>
@@ -261,9 +261,7 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
               </Button>
               <Button
                 variant="submit"
-                onClick={() =>
-                  onCreateSubmit(newName.trim(), newDescription.trim())
-                }
+                onClick={() => onCreateSubmit(newName.trim(), newDescription.trim())}
                 loading={!!loadingCreate}
                 disabled={!newName.trim()}
               >

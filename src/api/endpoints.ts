@@ -42,7 +42,7 @@ export const WINDFARMS = {
   CREATE: (project_id: string) => `/windfarms/project/${project_id}`,        // POST
   BATCH_CREATE: (project_id: string) => `/windfarms/project/${project_id}/batch`, // POST
   LIST_BY_PROJECT: (project_id: string) => `/windfarms/project/${project_id}`,    // GET
-  LIST_ALL: "/windfarms/all",                                                     // GET
+  LIST_ALL: "/windfarms/list",                                                     // GET
   DETAIL: (windfarm_id: string) => `/windfarms/${windfarm_id}`,                   // GET
   UPDATE: (windfarm_id: string) => `/windfarms/${windfarm_id}`,                   // PUT
   DELETE: (windfarm_id: string) => `/windfarms/${windfarm_id}`,                   // DELETE
@@ -53,17 +53,23 @@ export const WINDFARMS = {
 // Turbines
 // =======================
 export const TURBINES = {
-  CREATE: "/turbines/",                                            // POST
-  BATCH_CREATE: "/turbines/batch",                                 // POST
-  LIST_BY_WINDFARM: (windfarm_id: string) => `/turbines/windfarm/${windfarm_id}`, // GET
-  LIST_ALL: "/turbines/all",                                       // GET
-  DETAIL: (turbine_id: string) => `/turbines/${turbine_id}`,       // GET
-  UPDATE: (turbine_id: string) => `/turbines/${turbine_id}`,       // PUT
-  DELETE: (turbine_id: string) => `/turbines/${turbine_id}`,       // DELETE
-  UPDATE_STATUS: (turbine_id: string) => `/turbines/${turbine_id}/status`, // PUT
-  BULK_UPDATE_STATUS: "/turbines/bulk/status",                     // PUT
-} as const;
+  // POST /turbines/windfarm/{windfarm_id}
+  CREATE_BY_WINDFARM: (windfarm_id: string) => `/turbines/windfarm/${windfarm_id}`,
 
+  // GET /turbines/windfarm/{windfarm_id}
+  LIST_BY_WINDFARM: (windfarm_id: string) => `/turbines/windfarm/${windfarm_id}`,
+
+  // GET /turbines/list  (Admin-only)
+  LIST_ALL: "/turbines/list",
+
+  // GET/PUT/DELETE /turbines/{turbine_id}
+  DETAIL: (turbine_id: string) => `/turbines/${turbine_id}`,
+  UPDATE: (turbine_id: string) => `/turbines/${turbine_id}`,
+  DELETE: (turbine_id: string) => `/turbines/${turbine_id}`,
+
+  // PUT /turbines/{turbine_id}/status
+  UPDATE_STATUS: (turbine_id: string) => `/turbines/${turbine_id}/status`,
+} as const;
 // =======================
 // Audit
 // =======================

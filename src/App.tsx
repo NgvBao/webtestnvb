@@ -19,7 +19,8 @@ import UserManagementLogic from "./logic/UserManagementLogic";
 import ProjectManagementLogic from "./logic/ProjectManagementLogic";
 import MemberProjectLogic from "./logic/MemberProjectLogic";
 import WindfarmLogic from "./logic/WinfarmLogic"; // ✅ giữ nguyên
-
+import WindfarmAdminLogic from "./logic/WindfarmAdminLogic"; // ✅ giữ nguyên 
+import TurbinePageLogic from "./logic/TurbinePageLogic";
 // ===== Guards =====
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser();
@@ -92,6 +93,15 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/project/:projectId/windfarms/:windfarmId/turbines"
+            element={
+              <ProtectedRoute>
+                <TurbinePageLogic />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/windfarm-management" element={<ProtectedRoute>< WindfarmAdminLogic/></ProtectedRoute>} />
 
           <Route path="/setting" element={<ProtectedRoute><SettingLogic /></ProtectedRoute>} />
           <Route path="/sessions" element={<ProtectedRoute><SessionsListLogic /></ProtectedRoute>} />

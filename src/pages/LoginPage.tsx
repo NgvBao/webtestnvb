@@ -1,23 +1,3 @@
-/*
-  DOCUMENT TREE - LoginPage Component
-  
-  login-page (div.login-page)
-  ├── login-background-image (img.login-background-image)
-  └── login-form-container (div.login-form-container)
-      ├── login-title (h1.login-title)
-      └── form
-          ├── input-form-container (div.input-form-container) — Username field
-          │    ├── input-label (label.input-label)
-          │    └── input-container (div.input-container)
-          │         └── login-input (input.login-input) [type="text"]
-          ├── input-form-container (div.input-form-container) — Password field
-          │    ├── input-label (label.input-label)
-          │    └── input-container (div.input-container)
-          │         └── login-input (input.login-input) [type="password"]
-          ├── error-message (p.error-message) — rendered conditionally if error exists
-          └── login-submit-button (button.login-submit-button)
-          └── sign-up-button (button.sign-up-button)
-*/
 import React from "react";
 import "../styles/LoginPage.css";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +6,7 @@ type LoginPageProps = {
   username: string;
   password: string;
   error?: string;
+  info?: string; // ✅ thêm info message
   loading?: boolean;
   onUsernameChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
@@ -36,6 +17,7 @@ function LoginPage({
   username,
   password,
   error,
+  info,
   loading = false,
   onUsernameChange,
   onPasswordChange,
@@ -78,7 +60,12 @@ function LoginPage({
             </div>
           </div>
 
+          {/* ✅ Hiển thị error */}
           {error && <p className="error-message">{error}</p>}
+
+          {/* ✅ Hiển thị info */}
+          {info && <p className="info-message">{info}</p>}
+
           <button
             type="button"
             className="forgot-password-button"
@@ -86,7 +73,7 @@ function LoginPage({
             disabled={loading}
           >
             Forgot Password?
-            </button>
+          </button>
 
           <button
             type="submit"
