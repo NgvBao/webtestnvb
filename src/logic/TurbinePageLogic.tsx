@@ -92,6 +92,8 @@ const TurbinePageLogic: React.FC = () => {
   const [loadingDeleteId, setLoadingDeleteId] = useState<string | null>(null);
 
   // fetch list
+  useEffect(() => { console.log("[MOUNT] TurbinePageLogic"); }, []);
+
   useEffect(() => {
     if (!windfarmId) return;
     const ctrl = new AbortController();

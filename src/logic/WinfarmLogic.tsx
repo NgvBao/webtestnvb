@@ -1,249 +1,258 @@
-// src/pages/TurbinePageLogic.tsx
-import React, { useEffect, useState } from "react";
-import TurbinePage, { type TurbineUI } from "../pages/TurbinePage";
-import { turbineService } from "../api/auth/turbineService";
-import type { Turbine } from "../api/types/typeturbineService";
-import { useParams, useLocation } from "react-router-dom";
+// src/logic/WinfarmLogic.tsx
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import WindfarmPage from "../pages/WinfarmPage";
+import type { WindfarmUI } from "../pages/WinfarmPage";
+import { windfarmService } from "../api/auth/winfarmService";
+import type { WindfarmEntity, WindfarmListResponse } from "../api/types/typewinfarmService";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 
-type LocationState = {
-  project?: { id: string; name: string };
-  windfarm?: { id: string; name: string };
-};
+type LocationState = { project?: { id: string; name: string } };
 
-type CreateValues = {
-  name: string;
-  serialNo?: string;
-  capacityMw?: string;
-  coordinates?: string;
-  description?: string;
-};
-
-function mapApiToUI(t: Turbine): TurbineUI {
+// Map API → UI
+function mapApiToUI(w: WindfarmEntity): WindfarmUI {
   return {
-    id: t.id,
-    name: t.name,
-    description: t.description ?? "",
-    windfarmId: t.windfarm_id,
-    windfarmName: t.windfarm_name ?? "",
-    serialNo: t.serial_no ?? "",
-    capacityMw: t.capacity_mw ?? undefined,
-    coordinates: t.coordinates ?? "",
-    createdAt: t.created_at ?? "",
-    updatedAt: t.updated_at ?? "",
-    createdBy: t.created_by ?? "",
+    id: w.id,
+    name: w.name,
+    description: w.description ?? "",
+    own_company: w.own_company ?? "",
+    location: w.location ?? "",
+    projectId: w.project_id,
+    projectName: w.project_name ?? "",
+    createdAt: w.created_at ?? "",
+    updatedAt: w.updated_at ?? "",
+    createdBy: w.created_by ?? "",
+    turbineCount: w.turbine_count ?? 0,
   };
 }
 
-function mapUIToUpdatePayload(values: Record<string, string>) {
-  const payload: any = {};
-  if (values.name) payload.name = values.name;
-  if (values.description !== undefined) payload.description = values.description;
-  if (values.serialNo !== undefined) payload.serial_no = values.serialNo;
-  if (values.coordinates !== undefined) payload.coordinates = values.coordinates;
-  if (values.capacityMw !== undefined && values.capacityMw !== "") {
-    const n = Number(values.capacityMw);
-    if (!Number.isNaN(n)) payload.capacity_mw = n;
-  }
-  return payload;
-}
-
-const useDebounced = (value: string, delay = 300) => {
+const useDebounce = <T,>(value: T, delay = 400) => {
   const [v, setV] = useState(value);
   useEffect(() => {
-    const id = setTimeout(() => setV(value), delay);
-    return () => clearTimeout(id);
+    const t = setTimeout(() => setV(value), delay);
+    return () => clearTimeout(t);
   }, [value, delay]);
   return v;
 };
 
-const TurbinePageLogic: React.FC = () => {
-  const params = useParams<{ windfarmId?: string }>();
+const WindfarmLogic: React.FC = () => {
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const location = useLocation();
-  const locState = (location.state || {}) as LocationState;
+  const projectNameFromState = (location.state as LocationState | undefined)?.project?.name;
 
-  const windfarmId = params.windfarmId || locState.windfarm?.id || "";
-  const windfarmName = locState.windfarm?.name || "";
-  const projectId = locState.project?.id || "";
-  const projectName = locState.project?.name || "";
-
-  const [turbines, setTurbines] = useState<TurbineUI[]>([]);
-  const [loadingList, setLoadingList] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearch = useDebounced(searchTerm, 350);
+  // list state
+  const [items, setItems] = useState<WindfarmUI[]>([]);
   const [total, setTotal] = useState(0);
-  const [limit, setLimit] = useState(50);
   const [offset, setOffset] = useState(0);
+  const [limit] = useState(50);
+  const [loadingList, setLoadingList] = useState(false);
 
+  // search
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 400);
+
+  // create modal
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [createValues, setCreateValuesState] = useState<CreateValues>({ name: "" });
-  const setCreateValues = (k: keyof CreateValues, v: string) =>
+  const [createValues, setCreateValuesState] = useState({ name: "", location: "" });
+  const setCreateValues = (k: "name" | "location", v: string) =>
     setCreateValuesState((s) => ({ ...s, [k]: v }));
   const [loadingCreate, setLoadingCreate] = useState(false);
 
+  // detail modal
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
   const [detailValues, setDetailValues] = useState<Record<string, string>>({});
-  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [loadingDetail] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
 
+  // delete per-row
   const [loadingDeleteId, setLoadingDeleteId] = useState<string | null>(null);
 
+  // mounted guard
+  const mounted = useRef(true);
+  
   useEffect(() => {
-    if (!windfarmId) return;
-    const ctrl = new AbortController();
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
+
+  // reset paging khi search đổi
+  useEffect(() => { setOffset(0); }, [debouncedSearch]);
+
+  // reset state khi projectId đổi
+  useEffect(() => {
+    setOffset(0);
+    setItems([]);
+    setTotal(0);
+    setSearchTerm("");
+  }, [projectId]);
+
+  // fetch list
+  const fetchList = useCallback(async () => {
+    if (!projectId) return;
     setLoadingList(true);
-    turbineService
-      .listByWindfarm(windfarmId, { limit, offset, search: debouncedSearch || undefined }, ctrl.signal)
-      .then((res) => {
-        if (res.message === "canceled") return;
-        if (!res.ok) {
-          alert(res.message || "Failed to load turbines");
-          return;
-        }
-        const d = res.data;
-        const list = Array.isArray(d?.turbines) ? d.turbines.map(mapApiToUI) : [];
-        setTurbines(list);
-        setTotal(typeof d?.total === "number" ? d.total : list.length);
-        setLimit(typeof d?.limit === "number" && d.limit > 0 ? d.limit : 50);
-      })
-      .finally(() => setLoadingList(false));
-    return () => ctrl.abort();
-  }, [windfarmId, limit, offset, debouncedSearch]);
-
-  const onOpenCreate = () => setShowCreateModal(true);
-  const onCloseCreate = () => setShowCreateModal(false);
-
-  const onCreateSubmit = () => {
-    if (!windfarmId) return;
-    if (!createValues.name.trim()) return;
-    setLoadingCreate(true);
-
-    const payload = {
-      name: createValues.name.trim(),
-      description: createValues.description?.trim() || undefined,
-      serial_no: createValues.serialNo?.trim() || undefined,
-      coordinates: createValues.coordinates?.trim() || undefined,
-      capacity_mw:
-        createValues.capacityMw && createValues.capacityMw.trim() !== ""
-          ? Number(createValues.capacityMw)
-          : undefined,
-    };
-
-    turbineService
-      .create(windfarmId, payload as any)
-      .then((res) => {
-        if (!res.ok) {
-          alert(res.message || "Create turbine failed");
-          return;
-        }
-        setOffset(0);
-        setShowCreateModal(false);
-        setCreateValuesState({ name: "" });
-      })
-      .finally(() => setLoadingCreate(false));
-  };
-
-  const onOpenDetail = (tb: TurbineUI) => {
-    setLoadingDetail(true);
-    setDetailValues({
-      id: tb.id,
-      windfarmId: tb.windfarmId,
-      windfarmName: tb.windfarmName ?? "",
-      name: tb.name,
-      serialNo: tb.serialNo ?? "",
-      capacityMw: tb.capacityMw !== undefined ? String(tb.capacityMw) : "",
-      coordinates: tb.coordinates ?? "",
-      description: tb.description ?? "",
-      createdAt: tb.createdAt ?? "",
-      updatedAt: tb.updatedAt ?? "",
-      createdBy: tb.createdBy ?? "",
+    const res = await windfarmService.listByProject({
+      project_id: projectId,
+      limit,
+      offset,
+      search: debouncedSearch.trim() || undefined,
     });
+    if (!mounted.current) return;
+    setLoadingList(false);
+
+    if (!res.ok) {
+      if (res.message) alert(res.message);
+      return;
+    }
+    const payload = res.data as WindfarmListResponse;
+    const arr = (payload.windfarms ?? []).map(mapApiToUI);
+    setItems(arr);
+    setTotal(payload.total ?? arr.length);
+  }, [projectId, limit, offset, debouncedSearch]);
+
+  useEffect(() => { fetchList(); }, [fetchList]);
+
+  // Create
+  const onOpenCreate = () => setShowCreateModal(true);
+  const onCloseCreate = () => {
+    setShowCreateModal(false);
+    setCreateValuesState({ name: "", location: "" });
+  };
+  const onCreateSubmit = async () => {
+    if (loadingCreate || !projectId) return;
+    const name = createValues.name.trim();
+    const locationName = createValues.location.trim();
+    if (!name || !locationName) return;
+
+    setLoadingCreate(true);
+    const res = await windfarmService.create(projectId, { name, location: locationName });
+    if (!mounted.current) return;
+    setLoadingCreate(false);
+
+    if (!res.ok) {
+      if (res.message) alert(res.message);
+      return;
+    }
+    onCloseCreate();
+    fetchList();
+  };
+
+  // Detail open — dùng data từ list
+  const onOpenDetail = (wf: WindfarmUI) => {
     setShowDetailModal(true);
-    setLoadingDetail(false);
+    setDetailId(wf.id);
+    setDetailValues({
+      id: wf.id,
+      name: wf.name ?? "",
+      description: wf.description ?? "",
+      own_company: wf.own_company ?? "",
+      location: wf.location ?? "",
+      projectId: wf.projectId ?? "",
+      projectName: wf.projectName ?? "",
+      createdAt: wf.createdAt ?? "",
+      updatedAt: wf.updatedAt ?? "",
+      createdBy: wf.createdBy ?? "",
+      turbineCount: wf.turbineCount != null ? String(wf.turbineCount) : "0",
+    });
   };
 
-  const onCloseDetail = () => setShowDetailModal(false);
+  const onCloseDetail = () => {
+    setShowDetailModal(false);
+    setDetailId(null);
+    setDetailValues({});
+  };
 
-  const onDetailSave = () => {
-    const id = detailValues.id;
-    if (!id) return;
+  const setDetailValue = (k: string, v: string) =>
+    setDetailValues((s) => ({ ...s, [k]: v }));
+
+  const onDetailSave = async () => {
+    if (!detailId) return;
+    const body = {
+      name: (detailValues.name ?? "").trim() || undefined,
+      location: (detailValues.location ?? "").trim() || undefined,
+      description: (detailValues.description ?? "").trim() || undefined,
+      own_company: (detailValues.own_company ?? "").trim() || undefined,
+    };
+    if (!body.name || !body.location) return;
+
     setLoadingUpdate(true);
+    const res = await windfarmService.update(detailId, body);
+    if (!mounted.current) return;
+    setLoadingUpdate(false);
 
-    const payload = mapUIToUpdatePayload(detailValues);
-
-    turbineService
-      .update(id, payload)
-      .then((res) => {
-        if (!res.ok) {
-          alert(res.message || "Update turbine failed");
-          return;
-        }
-        const ctrl = new AbortController();
-        setLoadingList(true);
-        turbineService
-          .listByWindfarm(windfarmId, { limit, offset, search: debouncedSearch || undefined }, ctrl.signal)
-          .then((r2) => {
-            if (r2.ok) {
-              setTurbines(r2.data.turbines.map(mapApiToUI));
-              setTotal(r2.data.total ?? 0);
-            }
-          })
-          .finally(() => setLoadingList(false));
-        setShowDetailModal(false);
-      })
-      .finally(() => setLoadingUpdate(false));
+    if (!res.ok) {
+      if (res.message) alert(res.message);
+      return;
+    }
+    onCloseDetail();
+    fetchList();
   };
 
-  const onDelete = (tb: TurbineUI) => {
-    if (!confirm(`Delete turbine "${tb.name}"?`)) return;
-    setLoadingDeleteId(tb.id);
-    turbineService
-      .delete(tb.id)
-      .then((res) => {
-        if (!res.ok) {
-          alert(res.message || "Delete turbine failed");
-          return;
-        }
-        const ctrl = new AbortController();
-        setLoadingList(true);
-        turbineService
-          .listByWindfarm(windfarmId, { limit, offset, search: debouncedSearch || undefined }, ctrl.signal)
-          .then((r2) => {
-            if (r2.ok) {
-              setTurbines(r2.data.turbines.map(mapApiToUI));
-              setTotal(r2.data.total ?? 0);
-            }
-          })
-          .finally(() => setLoadingList(false));
-      })
-      .finally(() => setLoadingDeleteId(null));
+  // Delete
+  const onDelete = async (wf: WindfarmUI) => {
+    if (!window.confirm(`Delete windfarm "${wf.name}"?`)) return;
+    setLoadingDeleteId(wf.id);
+    const res = await windfarmService.remove(wf.id);
+    if (!mounted.current) return;
+    setLoadingDeleteId(null);
+
+    if (!res.ok) {
+      if (res.message) alert(res.message);
+      return;
+    }
+
+    const remaining = items.length - 1;
+    if (remaining <= 0 && offset > 0) {
+      setOffset(Math.max(0, offset - limit));
+    } else {
+      fetchList();
+    }
   };
 
-  const onRowClick = (_tb: TurbineUI) => {};
+  // server-side search → items đã chuẩn
+  const filtered = useMemo(() => items, [items]);
 
-  const setCreateValuesProxy = (k: keyof CreateValues, v: string) => setCreateValues(k, v);
-  const setDetailValue = (k: string, v: string) => setDetailValues((s) => ({ ...s, [k]: v }));
+  // Fallback tên project: ưu tiên state, nếu không có thì lấy từ list
+  const computedProjectName = useMemo(() => {
+    if (projectNameFromState && projectNameFromState.trim()) return projectNameFromState;
+    const fromList = items.find((x) => x.projectName && x.projectName.trim())?.projectName;
+    return fromList ?? "";
+  }, [projectNameFromState, items]);
+
+  // 👇 Row click → đi tới trang turbines đúng route bạn đã khai báo trong App.tsx
+  const handleRowClick = (wf: WindfarmUI) => {
+    if (!projectId) return;
+    navigate(`/project/${projectId}/windfarms/${wf.id}/turbines`, {
+      state: {
+        project: { id: projectId, name: computedProjectName || "" },
+        windfarm: { id: wf.id, name: wf.name },
+      },
+    });
+  };
 
   return (
-    <TurbinePage
+    <WindfarmPage
       projectId={projectId}
-      projectName={projectName}
-      windfarmId={windfarmId}
-      windfarmName={windfarmName}
-      turbines={turbines}
+      projectName={computedProjectName}
+      // list
+      windfarms={filtered}
       loadingList={loadingList}
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
+      // paging
       total={total}
       limit={limit}
       offset={offset}
-      onOffsetChange={setOffset}
+      onOffsetChange={(next) => setOffset(next)}
+      // create
       showCreateModal={showCreateModal}
       onOpenCreate={onOpenCreate}
       onCloseCreate={onCloseCreate}
       createValues={createValues}
-      setCreateValues={setCreateValuesProxy}
+      setCreateValues={setCreateValues}
       onCreateSubmit={onCreateSubmit}
       loadingCreate={loadingCreate}
+      // detail/edit
       showDetailModal={showDetailModal}
       onOpenDetail={onOpenDetail}
       onCloseDetail={onCloseDetail}
@@ -252,11 +261,13 @@ const TurbinePageLogic: React.FC = () => {
       onDetailSave={onDetailSave}
       loadingDetail={loadingDetail}
       loadingUpdate={loadingUpdate}
+      // delete
       onDelete={onDelete}
       loadingDeleteId={loadingDeleteId}
-      onRowClick={onRowClick}
+      // ✅ row click → Turbine
+      onRowClick={handleRowClick}
     />
   );
 };
 
-export default TurbinePageLogic;
+export default WindfarmLogic;

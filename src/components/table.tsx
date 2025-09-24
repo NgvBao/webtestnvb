@@ -67,6 +67,9 @@ export type GenericTableProps<T> = {
   pageSize?: number;
   total?: number;
   onPageChange?: (page: number) => void;
+
+  /** Bật Enter/Space + focus row khi có onRowClick (mặc định: true) */
+  activateOnKeyboard?: boolean;
 };
 
 type SortState = { key?: string; dir?: "asc" | "desc" };
@@ -93,6 +96,7 @@ function GenericTable<T extends { id?: string }>({
   pageSize,
   total,
   onPageChange,
+  activateOnKeyboard = true, // 🆕 mặc định bật
 }: GenericTableProps<T>) {
   // ===== Sorting (client-side nhẹ) =====
   const [sortState, setSortState] = React.useState<SortState>({});
@@ -271,26 +275,29 @@ function GenericTable<T extends { id?: string }>({
               }${onRowClick || onRowDoubleClick ? " row-clickable" : ""}`;
 
               const rp = rowProps?.(row, index) ?? {};
+
+              const interactive = Boolean(onRowClick || onRowDoubleClick);
+              const enableKb = interactive && activateOnKeyboard;
+
               const baseRowHandlers = {
                 onClick: onRowClick ? () => onRowClick(row, index) : undefined,
                 onDoubleClick: onRowDoubleClick ? () => onRowDoubleClick(row, index) : undefined,
                 onKeyDown: onRowKeyDown
                   ? (e: React.KeyboardEvent) => onRowKeyDown(e, row, index)
-                  : onRowClick
+                  : onRowClick && enableKb
                   ? (e: React.KeyboardEvent) => {
                       if (e.key === "Enter" || e.key === " ") onRowClick(row, index);
                     }
                   : undefined,
               };
-              const interactive = Boolean(onRowClick || onRowDoubleClick);
 
               return (
                 <tr
                   key={key}
                   className={cn}
                   style={interactive ? { cursor: "pointer" } : undefined}
-                  tabIndex={interactive ? 0 : undefined}
-                  role={interactive ? "button" : undefined}
+                  tabIndex={enableKb ? 0 : undefined}
+                  role={enableKb ? "button" : undefined}
                   {...baseRowHandlers}
                   {...rp}
                 >
