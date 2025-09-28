@@ -1,85 +1,73 @@
-/* ====== GIỮ NGUYÊN PHẦN CŨ CỦA BẠN (đã có) ====== */
-.sidebar {
-  width: 220px;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
+/* ---------- Sidebar container (card) ---------- */
+.sidebar-content {
+  width: 90px; /* ✅ Giảm từ 220px xuống 90px cho sidebar gọn hơn */
   background: #fff;
-  border-right: 1px solid #ccc;
   padding-top: 8px;
+  padding-bottom: 0; /* bỏ padding đáy cũ */
+  border-radius: 12px; /* bo góc card */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* đổ bóng nhẹ */
   box-sizing: border-box;
-  padding-bottom: 84px;
+
+  /* 🔹 Đảm bảo khối cao hết màn hình để footer chạm đáy */
+  height: 100%;
+
+  /* 🔹 Sắp xếp theo cột để margin-top:auto hoạt động */
+  display: flex;
+  flex-direction: column;
 }
 
+/* ---------- Menu ---------- */
 .menu {
   list-style: none;
   padding: 0;
   margin: 0;
+
+  /* 🔹 thêm khoảng trống dưới để nhóm menu dài xuống */
+  padding-bottom: 40px; /* hoặc 50px tuỳ bạn muốn dài thêm bao nhiêu */
 }
 
 .menu li {
   font-family: Arial, Helvetica, sans-serif;
-  padding: 6px 12px;
-  border-bottom: 1px solid #ddd;
+  padding: 20px 15px; /* tăng padding dọc để dễ bấm hơn */
+  display: flex; /* bật flex cho li */
+  justify-content: center; /* căn ngang icon ra giữa */
+  align-items: center; /* căn dọc icon ra giữa */
+
+  /* border-bottom: 1px solid #ddd; */
+  margin-bottom: 2px; /* khoảng cách giữa các mục */
   font-weight: bold;
   color: #333;
-  font-size: 13px;
+  font-size: 20px;
   cursor: pointer;
   outline: none;
 }
 
 .menu li.active {
-  background: #3b5998;
+  background: #2268ff;
   color: white;
+  border-radius: 120px;
 }
 
 .menu li:hover {
-  background: rgb(47, 69, 107);
-  color: white;
+  background: #e6f3ff;
+  color: #2268ff;
+  border-radius: 120px;
 }
 
-/* Mobile: thu thành cục vuông & chia cột */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: fixed;
-    bottom: 0;
-    top: auto;
-    border-right: none;
-    border-top: 1px solid #ccc;
-    padding: 0;
-  }
-
-  .menu {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-  }
-
-  .menu li {
-    border: none;
-    padding: 10px 0;
-    text-align: center;
-    font-size: 12px;
-  }
-}
-
-/* ====== Footer ====== */
+/* ---------- Footer ---------- */
 .sidebar-footer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
   padding: 8px 12px;
   border-top: 1px solid #ccc;
   background: #fff;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
+  border-radius: 10px;
+
+  /* 🔹 Tự động đẩy footer xuống đáy khối */
+  margin-top: auto;
 }
 
 .user-mini {
@@ -108,27 +96,27 @@
   padding: 5px 10px;
   border: 1px solid #000;
   background: #fff;
-  color: #DD0000;
+  color: #dd0000;
   border-radius: 0;
   font-size: 13px;
   font-weight: bold;
   cursor: pointer;
+  border-radius: 10px;
+  white-space: nowrap; /* 🚩 ngăn text tự xuống hàng */
 }
-.btn-logout--compact:disabled { opacity: 0.6; cursor: default; }
-
-@media (max-width: 768px) {
-  .sidebar-footer { display: none; }
+.btn-logout--compact:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
-/* ====== Submenu Manage (cải tiến) ====== */
+/* ---------- Submenu ---------- */
 .menu li.has-sub {
   position: relative;
   user-select: none;
-  padding: 0;               /* để button chiếm full vùng click */
+  padding: 0;
   border-bottom: 1px solid #ddd;
 }
 
-/* Nút tiêu đề submenu: dùng button cho a11y */
 .submenu-title {
   width: 100%;
   display: flex;
@@ -143,12 +131,11 @@
 }
 
 .submenu-title:focus-visible {
-  outline: 2px dashed #3b5998;
+  outline: 2px dashed #2268ff;
   outline-offset: 2px;
   background: #f5f7fb;
 }
 
-/* caret vẽ bằng before để dễ animate */
 .caret {
   width: 10px;
   height: 10px;
@@ -167,30 +154,23 @@
   transform: rotate(90deg);
 }
 
-/* Khối submenu: accordion + hover dropdown (desktop) */
 .submenu {
   list-style: none;
   margin: 0;
   padding: 4px 0 6px 0;
   background: #fff;
-
-  /* Accordion animation */
   max-height: 0;
   overflow: hidden;
   opacity: 0;
   transition: max-height 180ms ease, opacity 180ms ease;
-
-  /* Viền trái nhẹ để định hướng */
-  border-left: 2px solid #3b5998;
+  border-left: 2px solid #2268ff;
 }
 
-/* Khi mở bằng click (mobile/desktop) */
 .menu li.has-sub.open > .submenu {
-  max-height: 500px; /* đủ cho 3–6 item */
+  max-height: 500px;
   opacity: 1;
 }
 
-/* Desktop: hover cũng bung như dropdown */
 @media (hover: hover) and (min-width: 769px) {
   .menu li.has-sub:hover > .submenu {
     max-height: 500px;
@@ -198,9 +178,8 @@
   }
 }
 
-/* Item trong submenu */
 .submenu li {
-  padding: 6px 12px 6px 24px;  /* thụt trái nhẹ */
+  padding: 6px 12px 6px 24px;
   border: 0;
   font-weight: normal;
   font-size: 12px;
@@ -210,7 +189,6 @@
   outline: none;
 }
 
-/* điểm nhấn nhỏ đầu dòng */
 .submenu li .dot {
   width: 4px;
   height: 4px;
@@ -221,101 +199,20 @@
 }
 
 .submenu li:hover {
-  background: rgb(47, 69, 107);
+  background: #4268bb;
   color: #fff;
 }
 
 .submenu li.active {
-  background: #3b5998;
+  background: #4268bb;
   color: #fff;
 }
 
-/* Focus cho điều hướng bàn phím trong submenu */
 .submenu li:focus-visible {
-  outline: 2px dashed #3b5998;
+  outline: 2px dashed #2268ff;
   outline-offset: -2px;
 }
 
-/* Tô nhẹ item cha khi đang ở route con (tuỳ chọn) */
 .menu li.active-parent {
   background: #f5f7fb;
-}
-
-/* Dropdown “thả” ra ngoài trên desktop (tùy chọn: bật nếu muốn nổi hẳn) */
-/*
-@media (hover: hover) and (min-width: 769px) {
-  .menu li.has-sub {
-    position: relative;
-  }
-  .menu li.has-sub > .submenu {
-    position: absolute;
-    left: 100%;
-    top: 0;
-    min-width: 200px;
-    border: 1px solid #ddd;
-    border-left: 2px solid #3b5998;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  }
-}
-*/
-/* === Reset bo góc & viền đen khi hover/nhấn trong SIDEBAR === */
-
-/* 1) Xóa bo góc toàn bộ phần tử bên trong .sidebar */
-.sidebar * {
-  border-radius: 0 !important;
-}
-
-/* 2) Tắt highlight khi tap trên mobile */
-.sidebar, .sidebar * {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* 3) Vô hiệu hoá outline mặc định khi focus/active/hover (tránh viền đen),
-      nhưng vẫn giữ focus-visible (đã định nghĩa ở trên) cho a11y */
-.sidebar *:focus,
-.sidebar *:active,
-.sidebar *:hover {
-  outline: none;               /* tránh viền đen mặc định */
-  box-shadow: none;            /* tránh glow mặc định trình duyệt */
-}
-
-/* 4) Giữ focus-visible tùy biến (dashed xanh) nếu dùng bàn phím */
-.sidebar *:focus-visible {
-  outline: 2px dashed #3b5998; /* bạn đã set ở trên cho .submenu-title & .submenu li */
-  outline-offset: 2px;
-}
-
-/* 5) Nút & button trong sidebar: loại bỏ style mặc định của trình duyệt */
-.sidebar button,
-.sidebar .submenu-title,
-.sidebar .btn-logout--compact {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  border-radius: 0 !important; /* nhấn mạnh lần nữa cho chắc */
-  box-shadow: none !important;
-}
-
-/* 6) Sửa trường hợp Firefox thêm border trong content của button */
-.sidebar button::-moz-focus-inner,
-.sidebar .submenu-title::-moz-focus-inner,
-.sidebar .btn-logout--compact::-moz-focus-inner {
-  border: 0;
-}
-
-/* 7) Tránh viền đậm khi :active trên một số trình duyệt */
-.sidebar button:active,
-.sidebar .submenu-title:active,
-.sidebar .btn-logout--compact:active,
-.sidebar .menu li:active,
-.sidebar .submenu li:active {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
-/* (Tùy chọn) Nếu bạn thấy border-bottom của .menu li đậm lên khi hover,
-   có thể khoá màu nó lại để không “đậm” hơn do anti-aliasing */
-.menu li,
-.submenu li {
-  border-color: #ddd; /* khoá màu viền */
 }

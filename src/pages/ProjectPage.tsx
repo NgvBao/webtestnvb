@@ -1,36 +1,34 @@
-import React from "react";
-import Sidebar from "../components/sidebar";
-import GenericTable from "../components/table";
-import type { Column } from "../components/table";
-import "../styles/ProjectManagementPage.css"; // tái dùng CSS
-
-export type ProjectLite = {
-  id: string;
-  name: string;
-  windfarmCount: number;
-  description: string;
-  performance: string;
-  createdAt: string;
-  status: string;
-  managedBy: string; // hiển thị ở cột cuối
-};
+import React, { useState } from "react";
+import GenericTable, { type Column } from "../components/table";
+import type { ProjectUI } from "../api/types/typesprojectService";
+import ModalForm from "../components/Modal";
+import "../styles/ProjectManagementPage.css";
 
 type ProjectPageProps = {
-  projects: ProjectLite[];
+  projects: ProjectUI[];
   searchTerm: string;
   setSearchTerm: (s: string) => void;
   loadingList?: boolean;
-  onRowClick?: (p: ProjectLite) => void;
+  onRowClick?: (p: ProjectUI) => void;
+
+  // pagination props
+  page?: number;
+  pageSize?: number;
+  total?: number;
+  onPageChange?: (p: number) => void;
 };
 
-const statusClass = (s: string) => {
-  switch (s) {
-    case "ACTIVE": return "status-active";
-    case "NOT_STARTED": return "status-notstarted";
-    case "PAUSED": return "status-paused";
-    case "COMPLETED": return "status-completed";
-    default: return "status-unknown";
-  }
+// format: hh:mm:ss dd/mm/yy
+const formatDate = (iso?: string | null) => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "-";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(
+    d.getSeconds()
+  )} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${String(
+    d.getFullYear()
+  ).slice(-2)}`;
 };
 
 const ProjectPage: React.FC<ProjectPageProps> = ({
@@ -39,107 +37,164 @@ const ProjectPage: React.FC<ProjectPageProps> = ({
   setSearchTerm,
   loadingList,
   onRowClick,
+  page,
+  pageSize,
+  total,
+  onPageChange,
 }) => {
-  const columns: Column<ProjectLite>[] = [
+  const [showDescModal, setShowDescModal] = useState(false);
+  const [selectedDesc, setSelectedDesc] = useState("");
+
+  const columns: Column<ProjectUI>[] = [
     {
       key: "index",
       header: "#",
-      size: 0.06,
       align: "center",
       render: (_row, i) => i + 1,
-      headerClassName: "col-center",
       className: "col-center",
     },
     {
       key: "name",
       header: "Project",
-      size: 0.26,
       sortable: true,
       sortAccessor: (r) => r.name.toLowerCase(),
-      className: "project",
     },
     {
-      key: "createdAt",
+      key: "created_at",
       header: "Created",
-      size: 0.16,
       align: "right",
       sortable: true,
-      sortAccessor: (r) => r.createdAt || "",
-      className: "created",
-      headerClassName: "col-right",
+      render: (p) => formatDate(p.created_at),
     },
     {
-      key: "windfarmCount",
+      key: "updated_at",
+      header: "Updated",
+      align: "right",
+      sortable: true,
+      render: (p) => formatDate(p.updated_at),
+    },
+    {
+      key: "windfarm_count",
       header: "Windfarms",
-      size: 0.12,
       align: "center",
       sortable: true,
-      sortAccessor: (r) => r.windfarmCount,
-      className: "windfarms col-center",
-      headerClassName: "col-center",
-      render: (p) => p.windfarmCount,
+      render: (p) => p.windfarm_count ?? 0,
     },
     {
-      key: "performance",
-      header: "Performance",
-      size: 0.16,
-      className: "performance",
+      key: "turbine_count",
+      header: "Turbines",
+      align: "center",
+      sortable: true,
+      render: (p) => p.turbine_count ?? 0,
+    },
+    {
+      key: "description",
+      header: "Description",
+      align: "center",
+      render: (p) =>
+        p.description ? (
+          <button
+            className="btn-detail"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedDesc(p.description ?? "");
+              setShowDescModal(true);
+            }}
+          >
+            View
+          </button>
+        ) : (
+          "—"
+        ),
     },
     {
       key: "status",
       header: "Status",
-      size: 0.12,
       align: "center",
       sortable: true,
-      sortAccessor: (r) => r.status,
-      className: "status col-center",
-      headerClassName: "col-center",
-      render: (p) => <span className={statusClass(p.status)}>{p.status}</span>,
+      render: (p) => (
+        <span className={`status-${p.status?.toLowerCase()}`}>{p.status}</span>
+      ),
     },
     {
       key: "managedBy",
       header: "Managed by",
-      size: 0.18,
-      className: "managed-by",
+      render: (p) =>
+        p.created_by ? (
+          <div>
+            <span>{p.created_by.email}</span>
+            {p.user_role && (
+              <span
+                style={{
+                  marginLeft: 6,
+                  padding: "2px 6px",
+                  background: "#eef",
+                  borderRadius: 4,
+                  fontSize: "0.75em",
+                  fontWeight: 600,
+                }}
+              >
+                {p.user_role.toUpperCase()}
+              </span>
+            )}
+          </div>
+        ) : (
+          "—"
+        ),
     },
   ];
 
   return (
-    <div className="ProjectManagementPage">
-      {/* Sidebar */}
-      <aside className="sidebar-content">
-        <Sidebar />
-      </aside>
+    <div className="ProjectManagementContent">
+      {/* ✅ Page Title */}
+      <h1 className="page-title">Project</h1>
 
-      {/* Main */}
-      <main className="main-content">
-        <div className="content-body">
-          {/* Toolbar */}
-          <div className="toolbar">
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search project name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      {/* ✅ Toolbar */}
+      <div className="toolbar">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search project name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
-          {/* Bảng: dùng props mới của GenericTable */}
-          <div className="table-section">
-            <GenericTable<ProjectLite>
-              data={projects}
-              columns={columns}
-              loading={!!loadingList}
-              emptyText="No projects"
-              stickyHeader
-              onRowClick={onRowClick}
-              rowClassName={() => "row-clickable"} // cursor pointer
-              // cellAutoTooltip mặc định true → có title khi text dài
-            />
-          </div>
-        </div>
-      </main>
+      {/* ✅ Table with pagination */}
+      <div className="table-section">
+        <GenericTable<ProjectUI>
+          data={projects}
+          columns={columns}
+          loading={!!loadingList}
+          emptyText="No projects"
+          stickyHeader
+          onRowClick={onRowClick}
+          rowClassName={() => "row-clickable"}
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={onPageChange}
+        />
+      </div>
+
+      {/* ✅ Modal Description */}
+      {showDescModal && (
+        <ModalForm
+          isOpen={showDescModal}
+          header="Project Description"
+          fields={[
+            {
+              key: "description",
+              label: "Description",
+              type: "textarea",
+              editable: false,
+            },
+          ]}
+          values={{ description: selectedDesc }}
+          onChange={() => {}}
+          onClose={() => setShowDescModal(false)}
+        />
+      )}
     </div>
   );
 };

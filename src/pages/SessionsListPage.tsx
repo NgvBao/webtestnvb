@@ -1,5 +1,8 @@
-import Sidebar from "../components/sidebar";
+import React, { useMemo } from "react";
+import GenericTable from "../components/table";
+import type { Column } from "../components/table";
 import "../styles/SessionsListPage.css";
+
 type Session = {
   id: string;
   name: string;
@@ -30,20 +33,19 @@ type SessionPageProps = {
   onSaveDetail: () => void;
   onDeleteDetail: () => void;
 
-  // --- Note view
+  // Note
   viewNoteData: Session | null;
   onOpenNoteView: (ses: Session) => void;
   onCloseNoteView: () => void;
   onEditNote: () => void;
 
-  // --- Note edit
   editNoteData: Session | null;
   onCloseNoteEdit: () => void;
   onSaveNote: (newNote: string) => void;
   onDeleteNote: () => void;
 };
 
-function SessionsListPage({
+const SessionsListPage: React.FC<SessionPageProps> = ({
   sessions,
   searchTerm,
   setSearchTerm,
@@ -60,7 +62,6 @@ function SessionsListPage({
   onCloseDetail,
   onSaveDetail,
   onDeleteDetail,
-  // note
   viewNoteData,
   onOpenNoteView,
   onCloseNoteView,
@@ -69,244 +70,242 @@ function SessionsListPage({
   onCloseNoteEdit,
   onSaveNote,
   onDeleteNote,
-}: SessionPageProps) {
+}) => {
+  const data = useMemo(() => sessions, [sessions]);
+
+  const columns: Column<Session>[] = [
+    {
+      key: "created",
+      header: "Created",
+      size: 0.2,
+      render: (s) => s.created,
+    },
+    {
+      key: "name",
+      header: "Session",
+      size: 0.25,
+      render: (s) => s.name,
+    },
+    {
+      key: "images",
+      header: "Images",
+      size: 0.15,
+      align: "center",
+      render: (s) => s.images,
+    },
+    {
+      key: "note",
+      header: "Note",
+      size: 0.25,
+      render: (s) => (
+        <span
+          className="note-view"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenNoteView(s);
+          }}
+        >
+          View note
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      size: 0.15,
+      align: "center",
+      render: (s) => (
+        <button
+          className="btn-detail"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenDetail(s);
+          }}
+        >
+          Detail
+        </button>
+      ),
+    },
+  ];
+
   return (
     <div className="SessionPage">
-      {/* Sidebar */}
-      <aside className="sidebar-content">
-        <Sidebar />
-      </aside>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <div className="content-body">
-          {/* Toolbar */}
-          <div className="toolbar">
-            <button className="btn-create" onClick={onCreateClick}>
-              + Create
-            </button>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search session name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          {/* Table */}
-          <div className="table-container">
-            <table className="session-table">
-              <thead>
-                <tr>
-                  <th>Created</th>
-                  <th>Session</th>
-                  <th>Images</th>
-                  <th>Note</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sessions.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="no-data">
-                      No sessions found.
-                    </td>
-                  </tr>
-                ) : (
-                  sessions.map((ses) => (
-                    <tr
-                      key={ses.id}
-                      className="table-row"
-                      onClick={() => onRowClick(ses)}
-                    >
-                      <td>{ses.created}</td>
-                      <td>{ses.name}</td>
-                      <td>{ses.images}</td>
-                      <td>
-                        <span
-                          className="note-view"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenNoteView(ses);
-                          }}
-                        >
-                          View note
-                        </span>
-                      </td>
-                      <td>
-                        <button
-                          className="btn-detail"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenDetail(ses);
-                          }}
-                        >
-                          Detail
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+      <div className="content-body">
+        {/* Header */}
+        <div className="page-header">
+          <h1 className="page-title">Sessions</h1>
         </div>
-      </main>
 
-      {/* Create Modal */}
-      {showCreateModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3 className="modal-title">Create Session</h3>
-            <div className="modal-body">
-              <input
-                type="text"
-                className="modal-input"
-                placeholder="Session Name"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-              />
-            </div>
-            <div className="modal-actions">
-              <button className="btn btn-cancel" onClick={onCancelCreate}>
-                Cancel
-              </button>
-              <button
-                className="btn btn-submit"
-                onClick={() => onCreateSubmit(newName.trim())}
-                disabled={!newName.trim()}
-              >
-                Create
-              </button>
-            </div>
-          </div>
+        {/* Toolbar */}
+        <div className="toolbar">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search session name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="btn-create" onClick={onCreateClick}>
+            + Create
+          </button>
         </div>
-      )}
 
-      {/* Detail Modal */}
-      {detailData && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3 className="modal-title">Session Detail</h3>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Name</label>
+        {/* ✅ Table dùng component chung */}
+        <div className="table-wrap">
+          <GenericTable<Session>
+            data={data}
+            columns={columns}
+            emptyText="No sessions found."
+            stickyHeader
+            rowProps={(row) => ({
+              onClick: () => onRowClick(row),
+              className: "table-row",
+            })}
+          />
+        </div>
+
+        {/* --- Modal giữ nguyên như cũ --- */}
+        {showCreateModal && (
+          <div className="modal-overlay">
+            <div className="modal-box">
+              <h3 className="modal-title">Create Session</h3>
+              <div className="modal-body">
                 <input
                   type="text"
                   className="modal-input"
-                  value={detailData?.name ?? ""}
+                  placeholder="Session Name"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                />
+              </div>
+              <div className="modal-actions">
+                <button className="btn btn-cancel" onClick={onCancelCreate}>
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-submit"
+                  onClick={() => onCreateSubmit(newName.trim())}
+                  disabled={!newName.trim()}
+                >
+                  Create
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {detailData && (
+          <div className="modal-overlay">
+            <div className="modal-box">
+              <h3 className="modal-title">Session Detail</h3>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Name</label>
+                  <input
+                    type="text"
+                    className="modal-input"
+                    value={detailData?.name ?? ""}
+                    onChange={(e) =>
+                      detailData &&
+                      onDetailChange({ ...detailData, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Created</label>
+                  <input
+                    type="text"
+                    className="modal-input readonly"
+                    value={detailData?.created ?? ""}
+                    readOnly
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Images</label>
+                  <input
+                    type="text"
+                    className="modal-input readonly"
+                    value={String(detailData?.images ?? "")}
+                    readOnly
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Note</label>
+                  <input
+                    type="text"
+                    className="modal-input readonly"
+                    value={detailData?.note ?? ""}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button className="btn btn-cancel" onClick={onCloseDetail}>
+                  Close
+                </button>
+                <button className="btn btn-delete" onClick={onDeleteDetail}>
+                  Delete
+                </button>
+                <button className="btn btn-submit" onClick={onSaveDetail}>
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {viewNoteData && (
+          <div className="modal-overlay">
+            <div className="modal-box">
+              <h3 className="modal-title">View Note</h3>
+              <div className="modal-body">
+                <p>{viewNoteData.note || "No note yet"}</p>
+              </div>
+              <div className="modal-actions">
+                <button className="btn btn-cancel" onClick={onCloseNoteView}>
+                  Close
+                </button>
+                <button className="btn btn-submit" onClick={onEditNote}>
+                  Edit
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {editNoteData && (
+          <div className="modal-overlay">
+            <div className="modal-box">
+              <h3 className="modal-title">Edit Note</h3>
+              <div className="modal-body">
+                <textarea
+                  className="modal-textarea"
+                  defaultValue={editNoteData.note}
                   onChange={(e) =>
-                    detailData &&
-                    onDetailChange({ ...detailData, name: e.target.value })
+                    onDetailChange({ ...editNoteData, note: e.target.value })
                   }
                 />
               </div>
-
-              <div className="form-group">
-                <label>Created</label>
-                <input
-                  type="text"
-                  className="modal-input readonly"
-                  value={detailData?.created ?? ""}
-                  readOnly
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Images</label>
-                <input
-                  type="text"
-                  className="modal-input readonly"
-                  value={String(detailData?.images ?? "")}
-                  readOnly
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Note</label>
-                <input
-                  type="text"
-                  className="modal-input readonly"
-                  value={detailData?.note ?? ""}
-                  readOnly
-                />
+              <div className="modal-actions">
+                <button className="btn btn-cancel" onClick={onCloseNoteEdit}>
+                  Cancel
+                </button>
+                <button className="btn btn-delete" onClick={onDeleteNote}>
+                  Delete
+                </button>
+                <button
+                  className="btn btn-submit"
+                  onClick={() => onSaveNote(editNoteData.note)}
+                >
+                  Save
+                </button>
               </div>
             </div>
-
-            <div className="modal-actions">
-              <button className="btn btn-cancel" onClick={onCloseDetail}>
-                Close
-              </button>
-              <button className="btn btn-delete" onClick={onDeleteDetail}>
-                Delete
-              </button>
-              <button className="btn btn-submit" onClick={onSaveDetail}>
-                Save
-              </button>
-            </div>
           </div>
-        </div>
-      )}
-
-      {/* Note View Modal */}
-      {viewNoteData && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3 className="modal-title">View Note</h3>
-            <div className="modal-body">
-              <p>{viewNoteData.note || "No note yet"}</p>
-            </div>
-            <div className="modal-actions">
-              <button className="btn btn-cancel" onClick={onCloseNoteView}>
-                Close
-              </button>
-              <button className="btn btn-submit" onClick={onEditNote}>
-                Edit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Note Edit Modal */}
-      {editNoteData && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3 className="modal-title">Edit Note</h3>
-            <div className="modal-body">
-              <textarea
-                className="modal-textarea"
-                defaultValue={editNoteData.note}
-                onChange={(e) =>
-                  onDetailChange({ ...editNoteData, note: e.target.value })
-                }
-              />
-            </div>
-            <div className="modal-actions">
-              <button className="btn btn-cancel" onClick={onCloseNoteEdit}>
-                Cancel
-              </button>
-              <button
-                className="btn btn-delete"
-                onClick={onDeleteNote}
-              >
-                Delete
-              </button>
-              <button
-                className="btn btn-submit"
-                onClick={() =>
-                  onSaveNote(editNoteData.note)
-                }
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
-}
+};
 
 export default SessionsListPage;

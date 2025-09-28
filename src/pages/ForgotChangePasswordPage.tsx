@@ -18,7 +18,7 @@ function ForgotChangePasswordPage({
   setConfirmPassword,
   info,
   error,
-  title = "Change password",
+  title = "Change password ",
 }: ForgotChangePasswordPageProps) {
   return (
     <div className="ChangePasswordPage">
@@ -51,7 +51,6 @@ function ForgotChangePasswordPage({
         </div>
         {error && <p className="error-text">{error}</p>}
         {info && <p className="info-text">{info}</p>}
-
 
         <button className="save-btn" onClick={onSave}>
           Save

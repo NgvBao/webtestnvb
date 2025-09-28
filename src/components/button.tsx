@@ -1,7 +1,7 @@
 import React from "react";
 import "../components styles/button.css"; // ✅ fix đường dẫn: không có dấu cách
 
-type Variant = "cancel" | "delete" | "submit" | "approve" | "detail";
+type Variant = "cancel" | "delete" | "submit" | "approve" | "detail" | "create";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
@@ -19,6 +19,8 @@ const getLoadingLabel = (variant: Variant) => {
       return "Submitting...";
     case "cancel":
       return "Cancelling...";
+    case "create":
+      return "Creating...";
     default:
       return "Loading...";
   }

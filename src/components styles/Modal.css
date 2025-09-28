@@ -36,7 +36,9 @@
   color: #333;
   cursor: pointer;
 }
-.modal-close:hover { color: #2d4373; }
+.modal-close:hover {
+  color: #2d4373;
+}
 
 /* header giống Create: đậm, căn giữa */
 .modal-header {
@@ -84,7 +86,7 @@
 .modal-field input:focus,
 .modal-field textarea:focus {
   outline: none;
-  border-color: #3B5998;
+  border-color: #3b5998;
 }
 
 /* disabled/read-only (editable === false) */
@@ -92,7 +94,7 @@
 .modal-field textarea:disabled {
   background: #e4e4e4;
   color: #000;
-  opacity: 1;            /* tránh nhợt nhạt quá */
+  opacity: 1; /* tránh nhợt nhạt quá */
   cursor: not-allowed;
 }
 

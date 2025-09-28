@@ -1,9 +1,10 @@
-// Sidebar.tsx
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useUser, AUTH_SESSION_STORAGE_KEY } from "../context";
 import { authServiceLong } from "../api/auth/authService";
-import "../components styles/sidebar.css"; // ✅ sửa path
+import "../components styles/sidebar.css";
+
+import { FiSettings, FiBarChart2, FiGrid } from "react-icons/fi"; // FiGrid = Manage
 
 function Sidebar() {
   const { user, setUser } = useUser();
@@ -11,47 +12,13 @@ function Sidebar() {
   const location = useLocation();
 
   const [loggingOut, setLoggingOut] = useState(false);
-
-  // ✅ mở/đóng nhóm Manage: khởi tạo an toàn, sau đó sync theo route + saved
-  const [openManage, setOpenManage] = useState<boolean>(false);
-  useEffect(() => {
-    const p = location.pathname;
-    const inManage =
-      p.startsWith("/user") ||
-      p.startsWith("/project-management") ||
-      p.startsWith("/windfarm") ||              // gồm cả /windfarm và /windfarm-management
-      p.startsWith("/windfarm-management");
-    const saved = localStorage.getItem("sidebar.manageOpen") === "1";
-    setOpenManage(inManage || saved);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // chỉ chạy lần đầu
-
-  // Lưu trạng thái mở/đóng
-  useEffect(() => {
-    localStorage.setItem("sidebar.manageOpen", openManage ? "1" : "0");
-  }, [openManage]);
-
   const path = location.pathname;
 
-  // ✅ Tab lớn
-  const activeTab = useMemo<"settings" | "projects" | "manage" | "">(() => {
-    if (path === "/setting") return "settings";
-    if (path === "/project") return "projects";
-    if (
-      path.startsWith("/user") ||
-      path.startsWith("/project-management") ||
-      path.startsWith("/windfarm-management")
-    ) {
-      return "manage";
-    }
-    return "";
-  }, [path]);
-
-  // ✅ Submenu Manage
-  const activeSub = useMemo<"user" | "project" | "windfarm" | "">(() => {
-    if (path.startsWith("/user")) return "user";
-    if (path.startsWith("/project-management")) return "project";
-    if (path.startsWith("/windfarm-management")) return "windfarm";
+  // ✅ xác định tab đang active
+  const activeTab = useMemo(() => {
+    if (path === "/setting") return "setting";
+    if (path.startsWith("/project")) return "project";
+    if (path.startsWith("/manage")) return "manage"; // managePage
     return "";
   }, [path]);
 
@@ -71,137 +38,35 @@ function Sidebar() {
     setLoggingOut(false);
   };
 
-  const toggleManage = () => setOpenManage((v) => !v);
-
-  // Auto mở nếu đang ở route con của Manage (khi điều hướng sau này)
-  useEffect(() => {
-    const inManage =
-      path.startsWith("/user") ||
-      path.startsWith("/project-management") ||
-      path.startsWith("/windfarm-management");
-    if (inManage) setOpenManage(true);
-  }, [path]);
-
-  const submenuId = "sidebar-manage-submenu";
-
   return (
-    <aside className="sidebar" aria-label="Primary">
+    <>
       <ul className="menu" role="menu">
-        {/* Settings */}
+        {/* ✅ Settings */}
         <li
-          className={activeTab === "settings" ? "active" : ""}
+          className={activeTab === "setting" ? "active" : ""}
           role="menuitem"
           onClick={() => handleNavigate("/setting")}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleNavigate("/setting");
-            }
-          }}
         >
-          Settings
+          <FiSettings size={24} />
         </li>
 
-        {/* Projects */}
+        {/* ✅ Projects */}
         <li
-          className={activeTab === "projects" ? "active" : ""}
+          className={activeTab === "project" ? "active" : ""}
           role="menuitem"
           onClick={() => handleNavigate("/project")}
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleNavigate("/project");
-            }
-          }}
         >
-          Projects
+          <FiBarChart2 size={24} />
         </li>
 
-        {/* Manage (submenu) — chỉ cho admin */}
-        {user?.role === "admin" && (
-          <li
-            className={`has-sub ${openManage ? "open" : ""} ${
-              activeTab === "manage" ? "active-parent" : ""
-            }`}
-            role="none"
-          >
-            <button
-              type="button"
-              className="submenu-title"
-              aria-expanded={openManage}
-              aria-controls={submenuId}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleManage();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowRight") setOpenManage(true);
-                if (e.key === "ArrowLeft") setOpenManage(false);
-              }}
-            >
-              <span className="submenu-label">Manage</span>
-              <span className="caret" aria-hidden="true" />
-            </button>
-
-            <ul id={submenuId} className="submenu" role="menu" aria-label="Manage submenu">
-              <li
-                className={activeSub === "user" ? "active" : ""}
-                role="menuitem"
-                tabIndex={0}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNavigate("/user");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleNavigate("/user");
-                  }
-                }}
-              >
-                <span className="dot" aria-hidden="true" /> User Management
-              </li>
-
-              <li
-                className={activeSub === "project" ? "active" : ""}
-                role="menuitem"
-                tabIndex={0}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNavigate("/project-management");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleNavigate("/project-management");
-                  }
-                }}
-              >
-                <span className="dot" aria-hidden="true" /> Project Management
-              </li>
-
-              <li
-                className={activeSub === "windfarm" ? "active" : ""}
-                role="menuitem"
-                tabIndex={0}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNavigate("/windfarm-management");
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleNavigate("/windfarm-management");
-                  }
-                }}
-              >
-                <span className="dot" aria-hidden="true" /> Windfarm Management
-              </li>
-            </ul>
-          </li>
-        )}
+        {/* ✅ ManagePage */}
+        <li
+          className={activeTab === "manage" ? "active" : ""}
+          role="menuitem"
+          onClick={() => handleNavigate("/manage")}
+        >
+          <FiGrid size={24} />
+        </li>
       </ul>
 
       {/* Footer */}
@@ -218,7 +83,7 @@ function Sidebar() {
           {loggingOut ? "Logging out..." : "Log out"}
         </button>
       </div>
-    </aside>
+    </>
   );
 }
 

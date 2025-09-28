@@ -1,4 +1,3 @@
-import Sidebar from "../components/sidebar";
 import "../styles/UserManagementPage.css";
 import Button from "../components/button";
 import GenericTable from "../components/table";
@@ -21,9 +20,7 @@ type UserManagementPageProps = {
   approveLoading: string | null;
   deleteLoading: string | null;
   onDeleteClick: (user: User) => void;
-
-  // ✅ mới: để GenericTable hiện loading
-  loadingList?: boolean;
+  loadingList?: boolean; // ✅ hiển thị loading
 };
 
 function UserManagementPage({
@@ -36,14 +33,13 @@ function UserManagementPage({
   onDeleteClick,
   loadingList,
 }: UserManagementPageProps) {
-  // ---------------- Cấu hình cột ----------------
   const columns: Column<User>[] = [
     {
       key: "index",
       header: "#",
       size: 0.06,
       align: "center",
-      render: (_row, i) => i + 1, // ✅ dùng _row để tránh lỗi TS6133
+      render: (_row, i) => i + 1,
       headerClassName: "col-center",
       className: "col-center",
     },
@@ -107,7 +103,7 @@ function UserManagementPage({
           <Button
             variant="delete"
             onClick={(e: any) => {
-              e.stopPropagation(); // tránh click cả dòng
+              e.stopPropagation();
               onDeleteClick(user);
             }}
             loading={deleteLoading === user.id}
@@ -132,41 +128,38 @@ function UserManagementPage({
   ];
 
   return (
-    <div className="UserManagementPage">
-      {/* Sidebar */}
-      <aside className="sidebar-content">
-        <Sidebar />
-      </aside>
+    <div className="UserManagementContent">
+      <div className="content-body">
+        {/* ✅ Page Title ra riêng */}
+        <h1 className="page-title">User Management</h1>
 
-      {/* Main Content */}
-      <main className="main-content">
-        <div className="content-body">
-          {/* Toolbar */}
-          <div className="toolbar">
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search email or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+        {/* ✅ Toolbar */}
+        <div className="toolbar">
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search email or phone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-          {/* Table */}
+        {/* ✅ Table */}
+        <div className="table-section">
           <GenericTable<User>
             data={users}
             columns={columns}
             loading={!!loadingList}
             emptyText="No users"
             stickyHeader
-            // Nếu sau này muốn click cả dòng: onRowClick={(u) => ...}
-            // Chặn nổi bọt ở cell Actions (phòng ngừa):
             cellProps={(_row, col) =>
-              col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
+              col.key === "actions"
+                ? { onClick: (e) => e.stopPropagation() }
+                : {}
             }
           />
         </div>
-      </main>
+      </div>
     </div>
   );
 }

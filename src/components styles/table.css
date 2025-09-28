@@ -1,8 +1,17 @@
 .table-container {
   width: 100%;
-  overflow-x: auto;
   border: 1px solid #ccc;
   background: #fff;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px; /* ✅ bo cong ngoài cùng */
+  overflow: hidden; /* ✅ để bo cong ăn cả bảng */
+}
+
+.table-scroll {
+  max-height: 800px;
+  overflow-y: auto;
+  overflow-x: auto;
 }
 
 /* ================== Table ================== */
@@ -35,6 +44,22 @@
   border-right: 1px solid #ccc;
 }
 
+/* ✅ Bo góc header */
+.user-table thead tr:first-child th:first-child {
+  border-top-left-radius: 12px;
+}
+.user-table thead tr:first-child th:last-child {
+  border-top-right-radius: 12px;
+}
+
+/* ✅ Bo góc body cuối bảng */
+.user-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+.user-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
 /* Hover row */
 .user-table tbody tr:hover {
   background-color: #e6f2ff;
@@ -52,34 +77,40 @@ td.no-data {
   color: #219744;
   font-weight: 600;
 }
-
 .status-inactive {
-  color: #DD0000;
+  color: #dd0000;
   font-weight: 600;
 }
-/* ===== Sticky header (tùy chọn qua prop stickyHeader) ===== */
+
+/* ===== Sticky header ===== */
 .user-table.user-table--sticky thead th {
   position: sticky;
   top: 0;
-  background: #f1f1f1; /* đồng nhất với header */
+  background: #f1f1f1;
   z-index: 2;
 }
 
-/* clickable row feedback + focus a11y */
-.table-row.row-clickable { cursor: pointer; }
+/* clickable row feedback */
+.table-row.row-clickable {
+  cursor: pointer;
+}
 .table-row:focus {
   outline: 2px solid #1e88e5;
   outline-offset: -2px;
 }
 
 /* selection column */
-.th-select, .td-select {
+.th-select,
+.td-select {
   text-align: center;
   background: #f9f9f9;
 }
 
 /* sort arrow */
-.sort-arrow { margin-left: 4px; opacity: 0.7; }
+.sort-arrow {
+  margin-left: 4px;
+  opacity: 0.7;
+}
 
 /* pagination */
 .table-pagination {
@@ -98,13 +129,14 @@ td.no-data {
   padding: 4px 8px;
   font-size: 13px;
   cursor: pointer;
+  border-radius: 6px; /* nhẹ cho nút */
 }
 .btn-plain:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* tuyệt đối không bo cong */
-.table-container, .user-table, .user-table th, .user-table td, .btn-plain {
-  border-radius: 0;
+/* 1) Chặn rule flex + align-center bị rò từ page khác */
+.MainLayout .main-content {
+  display: block; /* hoặc: display:flex; align-items: stretch !important; */
 }

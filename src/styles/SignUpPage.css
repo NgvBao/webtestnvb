@@ -1,12 +1,50 @@
+/* ================================================
+   RESET & BASE
+================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Roboto, Arial, sans-serif;
+  line-height: 1.5;
+  color: #000;
+}
+
+/* ================================================
+   LAYOUT
+================================================ */
 .sign-up-page {
   height: 100vh;
   width: 100vw;
-  background: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
+
+  /* ✅ ảnh nền turbine */
+  background-image: url("/images/login.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* ✅ hiệu ứng fade-in nền */
+  animation: fadeInBg 0.4s ease-in forwards;
 }
 
+@keyframes fadeInBg {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ================================================
+   FORM CONTAINER
+================================================ */
 .sign-up-form-container {
   width: 100%;
   max-width: 400px;
@@ -14,75 +52,127 @@
   flex-direction: column;
   align-items: stretch;
   padding: 20px;
-  gap: 0; /* sẽ dùng margin-bottom cho các input block */
+  gap: 0;
+
+  /* ❌ bỏ nền trắng & shadow */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  /* ✅ hiệu ứng xuất hiện form */
+  animation: fadeSlideUp 0.45s ease-out forwards;
 }
 
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================================
+   TITLE
+================================================ */
+.sign-up-title {
+  font-size: 35px;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* ================================================
+   INPUT FORM
+================================================ */
 .input-form-container {
   font-size: 15px;
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 0.2rem;           /* khoảng cách label → input */
-  margin-bottom: 1rem;    /* khoảng cách giữa các input block */
+  gap: 0.2rem;
+  margin-bottom: 1rem;
 }
 
 .input-form-container:last-child {
-  margin-bottom: 0;       /* loại bỏ khoảng trống trước nút */
+  margin-bottom: 0;
 }
 
 .input-label {
   font-size: 13px;
   color: #000000;
 }
-.sign-up-title {
-    font-size: 35px;
-    font-weight: bold;
-    color: #000000;
-    margin-bottom: 1rem;
-}
+
 .input-container {
   width: 100%;
   height: 45px;
-  border: 1px solid #ccc; /* nhẹ nhàng, flat */
+  border: 2px solid #ccc;
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  border-radius: 8px; /* ✅ bo góc nhẹ */
+  overflow: hidden;
 }
 
 .sign-up-input {
   border: none;
   outline: none;
   flex: 1;
-  padding: 0 12px;      /* giữ kích thước input */
+  padding: 0 12px;
   width: 100%;
   font-size: 15px;
   color: #333;
   box-sizing: border-box;
+  background: transparent;
 }
 
+/* ================================================
+   BUTTON
+================================================ */
 .signup-btn {
-  background: #ffffff;
+  background: #eaeaea;
   color: #000000;
-  border: 1px solid #000;
+  border: 2px solid #525252;
   cursor: pointer;
   width: 100%;
-  margin-top: 0;         /* khoảng cách đã được margin-bottom của input cuối */
+  margin-top: 0;
   padding: 12px 0;
   font-weight: 600;
   font-size: 15px;
-  border-radius: 0;
+  border-radius: 8px; /* ✅ bo góc nhẹ */
   transition: background 0.2s ease;
 }
 
 .signup-btn:hover {
-  background: #ececec;  /* hover nhẹ, flat */
+  background: #ffffff;
   color: #000000;
-  border: 1px solid #000;
-  border-radius: 0;
+  border: 2px solid #525252;
 }
+
 .signup-btn:disabled {
-  background: #f0f0f0;
+  background: #ffffff;
   color: #999999;
-  border: 1px solid #cccccc;
+  border: 2px solid ##525252;
   cursor: not-allowed;
+}
+
+/* ================================================
+   RESPONSIVE
+================================================ */
+@media (max-width: 700px) {
+  .sign-up-form-container {
+    width: 96vw;
+    padding: 16px;
+  }
+  .sign-up-title {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  .signup-btn {
+    height: 42px;
+    font-size: 1rem;
+  }
 }

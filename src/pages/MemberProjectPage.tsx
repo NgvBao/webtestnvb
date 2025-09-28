@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-import Sidebar from "../components/sidebar";
 import GenericTable from "../components/table";
 import type { Column } from "../components/table";
 import Button from "../components/button";
@@ -107,7 +106,7 @@ const MemberProjectPage: React.FC<MemberProjectPageProps> = ({
   // dropdown state cho invite
   const [activeIndex, setActiveIndex] = useState<number>(-1);
 
-  const columns: Column<typeof data[number]>[] = [
+  const columns: Column<(typeof data)[number]>[] = [
     {
       key: "user",
       header: "Member",
@@ -131,7 +130,10 @@ const MemberProjectPage: React.FC<MemberProjectPageProps> = ({
       headerClassName: "col-center",
       className: "col-center",
       render: (m) => (
-        <span className={`role-badge ${roleClass(m.role)}`} title={roleText(m.role)}>
+        <span
+          className={`role-badge ${roleClass(m.role)}`}
+          title={roleText(m.role)}
+        >
           {roleText(m.role)}
         </span>
       ),
@@ -139,7 +141,7 @@ const MemberProjectPage: React.FC<MemberProjectPageProps> = ({
     {
       key: "joined_at",
       header: "Joined",
-      size: 0.20,
+      size: 0.2,
       align: "right",
       sortable: true,
       sortAccessor: (m) => m.joined_at || "",
@@ -161,7 +163,9 @@ const MemberProjectPage: React.FC<MemberProjectPageProps> = ({
               onClick={() => onRemove(m)}
               disabled={!canManage || isOwner || isDeleting}
               loading={isDeleting}
-              title={isOwner ? "Owner cannot be removed" : "Remove from project"}
+              title={
+                isOwner ? "Owner cannot be removed" : "Remove from project"
+              }
             >
               Remove
             </Button>
@@ -179,14 +183,20 @@ const MemberProjectPage: React.FC<MemberProjectPageProps> = ({
     onPageChange((nextPage - 1) * pageSize);
   };
 
-  const handleInviteKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+  const handleInviteKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (
+    e
+  ) => {
     if (e.key === "ArrowDown" && suggestions.length) {
       e.preventDefault();
       setActiveIndex((i) => Math.min(i + 1, suggestions.length - 1));
     } else if (e.key === "ArrowUp" && suggestions.length) {
       e.preventDefault();
       setActiveIndex((i) => Math.max(i - 1, -1));
-    } else if (e.key === "Enter" && activeIndex >= 0 && suggestions[activeIndex]) {
+    } else if (
+      e.key === "Enter" &&
+      activeIndex >= 0 &&
+      suggestions[activeIndex]
+    ) {
       e.preventDefault();
       onSuggestQueryChange(suggestions[activeIndex].email);
       setActiveIndex(-1);
@@ -197,116 +207,125 @@ const MemberProjectPage: React.FC<MemberProjectPageProps> = ({
 
   return (
     <div className="MemberProjectPage">
-      <aside className="sidebar-content">
-        <Sidebar />
-      </aside>
-
-      <main className="main-content">
-        <div className="content-body">
-          {/* Header */}
-          <div className="page-header">
-            <div className="page-title">{projectTitle}</div>
-            <Button variant="cancel" onClick={onBack}>Back</Button>
-          </div>
-
-          {/* Invite */}
-          <section className="invite-section">
-            <div className="invite-label">Invite team members</div>
-
-            <div className="invite-row-wrap">
-              <div className="invite-row">
-                <input
-                  type="text"
-                  className="invite-input"
-                  placeholder="Type email or name..."
-                  value={suggestQuery}
-                  onChange={(e) => { onSuggestQueryChange(e.target.value); setActiveIndex(-1); }}
-                  onKeyDown={handleInviteKeyDown}
-                  disabled={!canManage}
-                  aria-autocomplete="list"
-                  aria-expanded={!!suggestQuery && (suggestLoading || suggestions.length > 0)}
-                  aria-controls="invite-suggest-listbox"
-                />
-                <Button
-                  className="invite-add-btn"
-                  variant="submit"
-                  onClick={() => suggestQuery.trim() && onInviteUserId(suggestQuery.trim())}
-                  disabled={!canManage || !suggestQuery.trim() || !!inviteLoading}
-                  loading={!!inviteLoading}
-                  title="Add member by email"
-                >
-                  Add
-                </Button>
-              </div>
-
-              {/* Suggest dropdown */}
-              <div
-                id="invite-suggest-listbox"
-                className="suggest-dropdown"
-                style={{
-                  display:
-                    suggestQuery && (suggestLoading || suggestions.length > 0) ? "block" : "none",
-                }}
-                role="listbox"
-                aria-label="User suggestions"
-              >
-                {suggestLoading ? (
-                  <div className="suggest-loading">Searching…</div>
-                ) : suggestions.length ? (
-                  suggestions.map((u, i) => (
-                    <div
-                      key={u.id}
-                      className={`suggest-item${i === activeIndex ? " active" : ""}`}
-                      role="option"
-                      aria-selected={i === activeIndex}
-                      onMouseEnter={() => setActiveIndex(i)}
-                      onMouseLeave={() => setActiveIndex(-1)}
-                      onClick={() => { onSuggestQueryChange(u.email); setActiveIndex(-1); }}
-                    >
-                      <div className="suggest-name">{u.name}</div>
-                      <div className="suggest-email">{u.email}</div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="suggest-empty">No results</div>
-                )}
-              </div>
-            </div>
-          </section>
-
-          {/* Filter */}
-          <section className="filter-section">
-            <div className="filter-label">Team Members with Access</div>
-            <input
-              type="text"
-              className="filter-input"
-              placeholder="Search name or email"
-              value={searchTerm}
-              onChange={(e) => onSearchTermChange(e.target.value)}
-            />
-          </section>
-
-          {/* Table (clean, đồng kiểu) */}
-          <div className="table-wrap">
-            <GenericTable<typeof data[number]>
-              data={data}
-              columns={columns}
-              loading={!!loadingList}
-              emptyText="No members"
-              stickyHeader
-              // chặn nổi bọt ở ô actions
-              cellProps={(_row, col) =>
-                col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
-              }
-              // Pagination built-in
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={handlePageChange}
-            />
-          </div>
+      <div className="content-body">
+        {/* Header */}
+        <div className="page-header">
+          <div className="page-title">{MemberProject}</div>
+          <Button variant="cancel" onClick={onBack}>
+            Back
+          </Button>
         </div>
-      </main>
+
+        {/* Invite */}
+        <section className="invite-section">
+          <div className="invite-label">Invite team members</div>
+          <div className="invite-row-wrap">
+            <div className="invite-row">
+              <input
+                type="text"
+                className="invite-input"
+                placeholder="Type email or name..."
+                value={suggestQuery}
+                onChange={(e) => {
+                  onSuggestQueryChange(e.target.value);
+                  setActiveIndex(-1);
+                }}
+                onKeyDown={handleInviteKeyDown}
+                disabled={!canManage}
+                aria-autocomplete="list"
+                aria-expanded={
+                  !!suggestQuery && (suggestLoading || suggestions.length > 0)
+                }
+                aria-controls="invite-suggest-listbox"
+              />
+              <Button
+                className="invite-add-btn"
+                variant="submit"
+                onClick={() =>
+                  suggestQuery.trim() && onInviteUserId(suggestQuery.trim())
+                }
+                disabled={!canManage || !suggestQuery.trim() || !!inviteLoading}
+                loading={!!inviteLoading}
+                title="Add member by email"
+              >
+                Add
+              </Button>
+            </div>
+
+            {/* Suggest dropdown */}
+            <div
+              id="invite-suggest-listbox"
+              className="suggest-dropdown"
+              style={{
+                display:
+                  suggestQuery && (suggestLoading || suggestions.length > 0)
+                    ? "block"
+                    : "none",
+              }}
+              role="listbox"
+              aria-label="User suggestions"
+            >
+              {suggestLoading ? (
+                <div className="suggest-loading">Searching…</div>
+              ) : suggestions.length ? (
+                suggestions.map((u, i) => (
+                  <div
+                    key={u.id}
+                    className={`suggest-item${
+                      i === activeIndex ? " active" : ""
+                    }`}
+                    role="option"
+                    aria-selected={i === activeIndex}
+                    onMouseEnter={() => setActiveIndex(i)}
+                    onMouseLeave={() => setActiveIndex(-1)}
+                    onClick={() => {
+                      onSuggestQueryChange(u.email);
+                      setActiveIndex(-1);
+                    }}
+                  >
+                    <div className="suggest-name">{u.name}</div>
+                    <div className="suggest-email">{u.email}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="suggest-empty">No results</div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Filter */}
+        <section className="filter-section">
+          <div className="filter-label">Team Members with Access</div>
+          <input
+            type="text"
+            className="filter-input"
+            placeholder="Search name or email"
+            value={searchTerm}
+            onChange={(e) => onSearchTermChange(e.target.value)}
+          />
+        </section>
+
+        {/* Table */}
+        <div className="table-wrap">
+          <GenericTable<(typeof data)[number]>
+            data={data}
+            columns={columns}
+            loading={!!loadingList}
+            emptyText="No members"
+            stickyHeader
+            cellProps={(_row, col) =>
+              col.key === "actions"
+                ? { onClick: (e) => e.stopPropagation() }
+                : {}
+            }
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      </div>
     </div>
   );
 };

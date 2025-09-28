@@ -22,17 +22,54 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
+
+  /* ✅ ảnh nền */
+  background-image: url("/images/login.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* ✅ hiệu ứng fade-in nền */
+  animation: fadeInBg 0.8s ease-in forwards;
 }
 
+@keyframes fadeInBg {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ================================================
+   FORM CONTAINER
+================================================ */
 .OtpFormContainer {
   width: 450px;
   min-height: 320px;
   padding: 24px;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border-radius: 8px;
+
+  /* ❌ bỏ nền trắng, blur, shadow */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  /* ✅ hiệu ứng khi vào form */
+  animation: fadeSlideUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ================================================
@@ -67,8 +104,9 @@ body {
   border: 1px solid #999;
   display: flex;
   align-items: center;
-  border-radius: 4px;
+  border-radius: 8px; /* ✅ bo góc nhẹ */
   padding: 0 8px;
+  overflow: hidden; /* tránh viền vuông */
 }
 
 .OtpInput {
@@ -103,36 +141,40 @@ body {
 /* ================================================
    BUTTONS
 ================================================ */
-.OtpSubmitButton, .ResendOtpButton {
+.OtpSubmitButton,
+.ResendOtpButton {
   width: 100%;
   height: 50px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   margin-top: 12px;
-  border-radius: 4px;
+  border-radius: 8px; /* ✅ bo góc nhẹ */
   transition: background 0.2s, color 0.2s;
 }
+
 .OtpSubmitButton:disabled {
   opacity: 0.6;
-  background: #2d4373;
+  background: #4670cb;
   color: white;
   cursor: not-allowed;
 }
-.ResendOtpButton:disabled{
+
+.ResendOtpButton:disabled {
   opacity: 0.6;
   background: #f0f0f0;
   color: rgb(0, 0, 0);
   cursor: not-allowed;
 }
+
 .OtpSubmitButton {
-  background: #3b5998;
+  background: #4670cb;
   color: #fff;
   border: none;
 }
 
 .OtpSubmitButton:not(:disabled):hover {
-  background: #2d4373;
+  background: #4670cb;
 }
 
 .ResendOtpButton {
@@ -169,7 +211,8 @@ body {
     font-size: 1.5rem;
     margin-bottom: 20px;
   }
-  .OtpSubmitButton, .ResendOtpButton {
+  .OtpSubmitButton,
+  .ResendOtpButton {
     height: 42px;
     font-size: 1rem;
   }

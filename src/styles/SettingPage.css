@@ -1,103 +1,117 @@
-/* ================== Container chính - toàn bộ page ================== */
+/* Container */
 .SettingPage {
-  display: flex;        /* sidebar + main content theo hàng ngang */
-  height: 100vh;        /* full chiều cao viewport */
-  width: 100vw;         /* full chiều ngang */
-  background: #ffffff;  /* optional để tách sidebar và main rõ hơn */
-}
-
-/* ================== Sidebar ================== */
-.sidebar-content {
-  width: 220px;         /* chiều ngang cố định */
-  flex-shrink: 0;       /* không co lại khi container bị thu nhỏ */
-  overflow-y: auto;     /* scroll nếu nội dung dài */
-}
-
-/* ================== Main content ================== */
-.main-content {
-  flex: 1;              /* chiếm phần còn lại */
-  min-width: 0;         /* tránh tràn nội dung */
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;  /* căn ngang nội dung body */
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  padding: 1.5rem 2rem;
+  box-sizing: border-box;
   background: #fff;
-  overflow-y: auto;
-  padding: 1rem;
 }
-.header-bar{
-    width: 100%;
-    padding: 12px 20px;
-    padding-bottom: 60px;
-    background: #ffffff;
-    font-size: 13px;
-    display: flex;           /* bật flex */
-    justify-content: flex-end; /* đẩy nội dung sang phải */
-    align-items: center;     /* căn giữa theo chiều dọc */
+
+/* ✅ Header: tiêu đề trái, nút logout phải */
+.setting-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem; /* khoảng cách dưới header */
 }
-.btn-logout{
-    border: solid 1px #000000;
-    background: #ffffff;
-    padding: 5px 10px;
-    color: #DD0000;
-    cursor: pointer;
-    font-size: 13px;
-    border-radius: 0px;
-    font-weight: bold;
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
 }
+
+.btn-logout {
+  border: 1px solid #00000020;
+  background: #ffffff;
+  padding: 6px 12px;
+  color: #d00000;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+.btn-logout:hover {
+  background: #f4f4f4;
+}
+
+/* ✅ Form căn giữa ngang + tụt xuống thêm */
 .change-password-form {
-    max-width: 400px;
-    width: 100%;          /* stretch full width trong container */
-    margin: 0 auto;
-    border: 1px solid #000000;
-    gap: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch; /* con sẽ kéo full width */
-    padding: 16px;
-    box-sizing: border-box;
+  max-width: 400px;
+  width: 100%;
+  margin: 40px auto 0 auto; /* 👈 tăng từ 0 lên 40px để form tụt xuống */
+  border: 1px solid #00000020;
+  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: #fafafa;
 }
 
 .input-group {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
+
 .title-group {
-    font-size: 13px;
-    color: #000000;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
 }
-.save-btn{
-    background-color: #3B5998;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    font-size: 13px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 0px;
-}
+
 .input-field {
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border: 1px solid #ccc;
-  border-radius: 0px;
+  border-radius: 6px;
   background: #ffffff;
-  color:#000;
+  color: #000;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .input-field:focus {
-    outline: none;
-    border-color: #3B5998;
+  outline: none;
+  border-color: #3b5998;
+  box-shadow: 0 0 4px rgba(59, 89, 152, 0.4);
 }
+
+.save-btn {
+  background-color: #2268ff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin-top: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+.save-btn:hover {
+  background-color: #144ecd;
+}
+
+.error-text {
+  color: red;
+  font-size: 13px;
+}
+
+.info-text {
+  color: green;
+  font-size: 13px;
+}
+
 @media (max-width: 768px) {
   .SettingPage {
-    flex-direction: column; /* sidebar lên trên, main xuống dưới */
+    padding: 1rem;
   }
-  .sidebar-content {
-    width: 100%;
-    height: auto;
-    order: -1; /* cho sidebar hiện trước main */
+  .change-password-form {
+    margin-top: 24px; /* mobile thấp hơn chút cho cân */
   }
-  .main-content {
-    width: 100%;
-  }
-  
 }

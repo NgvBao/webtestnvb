@@ -1,140 +1,128 @@
-/* ================== Container chính ================== */
+/* ==== Dùng khi page chạy ĐỘC LẬP (ngoài ManagePage layout) ==== */
 .ProjectManagementPage {
   display: flex;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+  flex-direction: column;
+  height: 100%; /* tránh 100vh bên trong layout có padding */
+  width: 100%; /* tránh 100vw gây cuộn ngang */
   background: #fff;
 }
 
-/* ================== Sidebar ================== */
-.sidebar-content {
-  width: 220px;
-  flex-shrink: 0;
-  overflow-y: auto;
-  background: #f9f9f9;
-}
-
-/* ================== Main content ================== */
-.main-content {
+/* Card chính */
+.ProjectManagementPage .main-content {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  padding: 1rem;
+  overflow: hidden; /* chặn leak ra ngoài card */
+  padding: 2rem;
   background: #fff;
+  box-sizing: border-box;
+
+  /* Mặc định: full width */
+  width: 100%;
+  max-width: none;
+  margin: 0;
+
+  /* Nếu muốn chạy độc lập ngoài layout thì ép max-width */
+}
+body.layout-standalone .ProjectManagementPage .main-content {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* ================== Content body ================== */
-.content-body {
-  margin: 0 auto;
+/* ==== Dùng khi NHÚNG VÀO panel của ManagePage ==== */
+.ProjectManagementContent {
   display: flex;
   flex-direction: column;
+  gap: 12px;
   width: 100%;
-  max-width: 1400px;
-  gap: 1rem;
-  position: relative;
+  min-width: 0; /* quan trọng để bảng co trong panel */
 }
 
-.content-body::after {
-  content: '';
-  display: block;
-  height: 5rem;
+.page-title {
+  font-family: "Segoe UI", "Inter", "Roboto", sans-serif;
+  font-size: 35px;
+  font-weight: 800;
+  color: #111;
+  margin: 0 0 16px 0;
+  text-align: left;
+  letter-spacing: -0.2px;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.99);
+  animation: fadeSlideIn 0.4s ease-out forwards;
 }
 
-/* ================== Toolbar ================== */
-/* Cho input chiếm phần còn lại, nút create nằm bên phải cùng hàng */
+/* Toolbar */
 .toolbar {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  justify-content: flex-start;        /* was: space-between */
+  gap: 12px;
 }
-/* Đẩy cụm nút sang phải */
+
 .toolbar-actions {
   margin-left: auto;
   display: flex;
   align-items: center;
 }
-/* Chặn style nội bộ của Button làm nó block/center */
-.toolbar-actions > * {
-  display: inline-flex !important;
-  margin: 0 !important;
-}
 
-/* (khuyến nghị) tránh bị text-align toàn cục làm lệch */
-.toolbar {
-  text-align: initial;
-}
-
+/* Search */
 .search-input {
-  flex: 1;                             /* NEW: co giãn chiếm khoảng trống */
-  min-width: 240px;
-  width: auto;                         /* override width:100% trước đây */
-  padding: 5px;
-  font-size: 13px;
+  flex: 1;
+  height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
   border: 1px solid #999;
+  border-radius: 18px;
+  background: #fff;
   box-sizing: border-box;
 }
-
 .search-input:focus {
   outline: none;
-  border: 1px solid #2d4373;
+  border: 1px solid #6ec0ec;
+  box-shadow: 0 0 4px rgba(45, 67, 115, 0.3);
 }
 
-/* (tuỳ chọn) nếu bạn muốn thêm className="btn-create" vào Button thì có thể thêm rule này
-.toolbar .btn-create { margin-left: 0; } 
-*/
-
-/* ================== Table & overlay ================== */
+/* Bảng: chỉ phần này được quyền cuộn ngang nếu thiếu chỗ */
 .table-section {
   position: relative;
+  width: 100%;
+  min-width: 0; /* chống tràn */
+  overflow-x: auto; /* scroll ngang cục bộ, không kéo cả trang */
 }
 
-.table-overlay-loading {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.6);
-  backdrop-filter: blur(1px);
-  font-size: 14px;
-  z-index: 2;
+/* Status màu sắc dùng chung */
+.status-active {
+  color: #0b8a2e;
+  font-weight: 600;
+}
+.status-notstarted {
+  color: #777;
+  font-weight: 600;
+}
+.status-paused {
+  color: #a87100;
+  font-weight: 600;
+}
+.status-completed {
+  color: #6ec0ec;
+  font-weight: 600;
+}
+.status-unknown {
+  color: #999;
+  font-weight: 600;
 }
 
-.list-empty {
-  padding: 1rem 0;
-  text-align: center;
-  color: #666;
-  font-size: 14px;
-}
-
-/* ================== Status tags ================== */
-.status-active { color: #0b8a2e; font-weight: 600; }
-.status-notstarted { color: #777; font-weight: 600; }
-.status-paused { color: #a87100; font-weight: 600; }
-.status-completed { color: #1b5c9a; font-weight: 600; }
-.status-unknown { color: #999; font-weight: 600; }
-
-/* ================== Responsive ================== */
-@media (max-width: 1200px) { .content-body { max-width: 1000px; } }
-
-@media (max-width: 992px) {
-  .sidebar-content { width: 200px; }
-  .toolbar { flex-direction: column; align-items: stretch; }
-  .search-input { width: 100%; min-width: 0; }
-}
-
-@media (max-width: 768px) {
-  .ProjectManagementPage { flex-direction: column; }
-  .sidebar-content { width: 100%; order: -1; }
-  .main-content { width: 100%; overflow-x: auto; }
-}
-
+/* Responsive nhẹ */
 @media (max-width: 576px) {
-  .toolbar { flex-direction: column; gap: 0.5rem; }
-  .search-input { font-size: 12px; padding: 4px 6px; }
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+@keyframes fadeSlideIn {
+  to {
+    opacity: 1;
+    transform: translateY(6px);
+  }
 }

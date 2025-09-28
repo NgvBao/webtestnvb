@@ -1,5 +1,4 @@
 import React from "react";
-import Sidebar from "../components/sidebar";
 import ModalForm from "../components/Modal";
 import Button from "../components/button";
 import GenericTable from "../components/table";
@@ -17,12 +16,10 @@ export type Project = {
 };
 
 type ProjectManagementPageProps = {
-  // Data + search
   projects: Project[];
   searchTerm: string;
   setSearchTerm: (s: string) => void;
 
-  // Create modal
   showCreateModal: boolean;
   newName: string;
   setNewName: (s: string) => void;
@@ -33,13 +30,11 @@ type ProjectManagementPageProps = {
   onCreateSubmit: (name: string, description: string) => void;
   loadingCreate?: boolean;
 
-  // Actions (từ Logic)
   onManageClick?: (p: Project) => void;
   onDeleteClick?: (p: Project) => void;
 
-  // Loading trong bảng & xoá theo hàng
   loadingList?: boolean;
-  loadingDeleteId?: string | null; // per-row spinner
+  loadingDeleteId?: string | null;
 };
 
 const statusClass = (s: string) => {
@@ -57,26 +52,22 @@ const statusClass = (s: string) => {
   }
 };
 
-// ---- Format hh:mm:ss dd/mm/yy (local time) ----
 const formatDate = (iso?: string) => {
   if (!iso) return "-";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "-";
   const pad = (n: number) => String(n).padStart(2, "0");
-  const dd = pad(d.getDate());
-  const mm = pad(d.getMonth() + 1);
-  const yy = String(d.getFullYear()).slice(-2);
-  const hh = pad(d.getHours());
-  const mi = pad(d.getMinutes());
-  const ss = pad(d.getSeconds());
-  return `${hh}:${mi}:${ss} ${dd}/${mm}/${yy}`;
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(
+    d.getSeconds()
+  )} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${String(
+    d.getFullYear()
+  ).slice(-2)}`;
 };
 
 const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   projects,
   searchTerm,
   setSearchTerm,
-
   showCreateModal,
   newName,
   setNewName,
@@ -86,31 +77,17 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   onCancelCreate,
   onCreateSubmit,
   loadingCreate,
-
   onManageClick,
   onDeleteClick,
-
   loadingList,
   loadingDeleteId,
 }) => {
-  // ===== Create Modal fields =====
-  const createFields = [
-    { key: "name", label: "Project Name", editable: true },
-    { key: "description", label: "Description", editable: true, type: "textarea" as const },
-  ];
-  const createValues: Record<string, string> = {
-    name: newName,
-    description: newDescription,
-  };
-
-  // ===== Columns =====
   const columns: Column<Project>[] = [
     {
       key: "index",
       header: "#",
-      size: 0.02,
+      size: 0.05,
       align: "center",
-      sortable: false,
       render: (_row, i) => i + 1,
       headerClassName: "col-center",
       className: "col-center",
@@ -118,10 +95,9 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
     {
       key: "name",
       header: "Project",
-      size: 0.24,
+      size: 0.25,
       sortable: true,
       sortAccessor: (r) => r.name.toLowerCase(),
-      className: "project",
     },
     {
       key: "createdAt",
@@ -130,9 +106,9 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       align: "right",
       sortable: true,
       sortAccessor: (r) => r.createdAt || "",
-      className: "created",
       headerClassName: "col-right",
-      render: (p) => formatDate(p.createdAt), // 👈 chuẩn hóa hiển thị
+      className: "col-right",
+      render: (p) => formatDate(p.createdAt),
     },
     {
       key: "windfarmCount",
@@ -141,17 +117,11 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       align: "center",
       sortable: true,
       sortAccessor: (r) => r.windfarmCount,
-      className: "windfarms col-center",
       headerClassName: "col-center",
+      className: "col-center",
       render: (p) => p.windfarmCount,
     },
-    {
-      key: "performance",
-      header: "Performance",
-      size: 0.16,
-      sortable: false,
-      className: "performance",
-    },
+    { key: "performance", header: "Performance", size: 0.16 },
     {
       key: "status",
       header: "Status",
@@ -159,16 +129,14 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       align: "center",
       sortable: true,
       sortAccessor: (r) => r.status,
-      className: "status col-center",
       headerClassName: "col-center",
-      render: (p) => <span className={statusClass(String(p.status))}>{p.status}</span>,
+      className: "col-center",
+      render: (p) => <span className={statusClass(p.status)}>{p.status}</span>,
     },
     {
       key: "actions",
       header: "Action",
       size: 0.18,
-      align: "left",
-      sortable: false,
       className: "action-cell",
       render: (p) => (
         <>
@@ -198,56 +166,55 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   ];
 
   return (
-    <div className="ProjectManagementPage">
-      {/* Sidebar */}
-      <aside className="sidebar-content">
-        <Sidebar />
-      </aside>
+    <div className="ProjectManagementContent">
+      <h1 className="page-title">Project Management</h1>
 
-      {/* Main */}
-      <main className="main-content">
-        <div className="content-body">
-          {/* Toolbar */}
-          <div className="toolbar">
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search project name..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <div className="toolbar-actions">
-              <Button variant="submit" onClick={onCreateClick} loading={!!loadingCreate}>
-                + Create
-              </Button>
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="table-section">
-            <GenericTable<Project>
-              data={projects}
-              columns={columns}
-              loading={!!loadingList}
-              emptyText="No projects"
-              stickyHeader
-              cellProps={(_row, col) =>
-                col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
-              }
-              // onRowClick={(p) => onManageClick?.(p)}
-              rowClassName={(_r) => undefined}
-            />
-          </div>
+      <div className="toolbar">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search project name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <div className="toolbar-actions">
+          <Button
+            variant="create"
+            onClick={onCreateClick}
+            loading={!!loadingCreate}
+          >
+            + Create
+          </Button>
         </div>
-      </main>
+      </div>
 
-      {/* Create Modal */}
+      <div className="table-section">
+        <GenericTable<Project>
+          data={projects}
+          columns={columns}
+          loading={!!loadingList}
+          emptyText="No projects"
+          stickyHeader
+          cellProps={(_row, col) =>
+            col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
+          }
+        />
+      </div>
+
       {showCreateModal && (
         <ModalForm
           isOpen={showCreateModal}
           header="Create Project"
-          fields={createFields}
-          values={createValues}
+          fields={[
+            { key: "name", label: "Project Name", editable: true },
+            {
+              key: "description",
+              label: "Description",
+              editable: true,
+              type: "textarea",
+            },
+          ]}
+          values={{ name: newName, description: newDescription }}
           onChange={(key, v) => {
             if (key === "name") setNewName(v);
             if (key === "description") setNewDescription(v);
@@ -260,8 +227,10 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
                 Cancel
               </Button>
               <Button
-                variant="submit"
-                onClick={() => onCreateSubmit(newName.trim(), newDescription.trim())}
+                variant="create"
+                onClick={() =>
+                  onCreateSubmit(newName.trim(), newDescription.trim())
+                }
                 loading={!!loadingCreate}
                 disabled={!newName.trim()}
               >

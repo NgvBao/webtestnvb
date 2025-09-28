@@ -1,13 +1,12 @@
-// src/pages/WinfarmPage.tsx
+// src/pages/WindfarmPage.tsx
 import React from "react";
-import Sidebar from "../components/sidebar";
 import Button from "../components/button";
 import GenericTable from "../components/table";
 import type { Column } from "../components/table";
 import ModalForm from "../components/Modal";
 import type { FieldColumn } from "../components/Modal";
-import "../styles/ProjectManagementPage.css";
 import Breadcrumb from "../components/breadcrumb";
+import "../styles/ProjectManagementPage.css"; // ✅ dùng chung css
 
 export type WindfarmUI = {
   id: string;
@@ -15,14 +14,11 @@ export type WindfarmUI = {
   description?: string;
   own_company?: string;
   location: string;
-
   projectId: string;
   projectName?: string;
-
   createdAt?: string;
   updatedAt?: string;
   createdBy?: string;
-
   turbineCount?: number;
 };
 
@@ -72,7 +68,7 @@ type Props = {
 };
 
 const truncate = (s: string | undefined, n = 120) =>
-  (s ?? "").length > n ? `${(s ?? "").slice(0, n)}…` : (s ?? "");
+  (s ?? "").length > n ? `${(s ?? "").slice(0, n)}…` : s ?? "";
 
 const WindfarmPage: React.FC<Props> = ({
   projectId,
@@ -85,7 +81,6 @@ const WindfarmPage: React.FC<Props> = ({
   limit = 50,
   offset = 0,
   onOffsetChange,
-
   showCreateModal,
   onOpenCreate,
   onCloseCreate,
@@ -93,7 +88,6 @@ const WindfarmPage: React.FC<Props> = ({
   setCreateValues,
   onCreateSubmit,
   loadingCreate,
-
   showDetailModal,
   onOpenDetail,
   onCloseDetail,
@@ -102,10 +96,8 @@ const WindfarmPage: React.FC<Props> = ({
   onDetailSave,
   loadingDetail,
   loadingUpdate,
-
   onDelete,
   loadingDeleteId,
-
   onRowClick,
 }) => {
   const columns: Column<WindfarmUI>[] = [
@@ -214,10 +206,20 @@ const WindfarmPage: React.FC<Props> = ({
   const detailFields: FieldColumn[] = [
     { key: "id", label: "ID", type: "text", editable: false },
     { key: "projectId", label: "Project ID", type: "text", editable: false },
-    { key: "projectName", label: "Project Name", type: "text", editable: false },
+    {
+      key: "projectName",
+      label: "Project Name",
+      type: "text",
+      editable: false,
+    },
     { key: "name", label: "Name", type: "text", editable: true },
     { key: "location", label: "Location", type: "text", editable: true },
-    { key: "description", label: "Description", type: "textarea", editable: true },
+    {
+      key: "description",
+      label: "Description",
+      type: "textarea",
+      editable: true,
+    },
     { key: "own_company", label: "Own Company", type: "text", editable: true },
     { key: "turbineCount", label: "Turbines", type: "number", editable: false },
     { key: "createdAt", label: "Created At", type: "text", editable: false },
@@ -230,66 +232,54 @@ const WindfarmPage: React.FC<Props> = ({
     (detailValues.name ?? "").trim() && (detailValues.location ?? "").trim();
 
   return (
-    <div className="ProjectManagementPage">
-      <aside className="sidebar-content">
-        <Sidebar />
-      </aside>
+    <div className="ProjectManagementContent">
+      <div className="page-title">
+        <Breadcrumb
+          items={[
+            { label: "Projects", path: "/project-management" },
+            { label: "Windfarms" },
+          ]}
+        />
+        {/* <h2 className="page-subtitle">{projectName || "Windfarms"}</h2> */}
+      </div>
 
-      <main className="main-content">
-        <div className="content-body">
-          <div className="page-title">
-            <Breadcrumb
-              items={[
-                { label: "Projects", path: "/project-management" },
-                projectName
-                  ? {
-                      label: projectName,
-                      path: projectId ? `/project/${projectId}` : undefined,
-                    }
-                  : undefined,
-                { label: "Windfarms" },
-              ].filter(Boolean) as any}
-            />
-          </div>
+      {/* ✅ Toolbar */}
+      <div className="toolbar">
+        <input
+          type="text"
+          className="search-input"
+          placeholder={`Search by name/location${
+            projectName ? ` in ${projectName}` : ""
+          }...`}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Button variant="submit" onClick={onOpenCreate}>
+          + Create
+        </Button>
+      </div>
 
-          <div className="toolbar">
-            <input
-              type="text"
-              className="search-input"
-              placeholder={`Search by name/location${
-                projectName ? ` in ${projectName}` : ""
-              }...`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <div className="toolbar-actions" style={{ display: "flex", gap: 8 }}>
-              <Button variant="submit" onClick={onOpenCreate}>
-                + Create
-              </Button>
-            </div>
-          </div>
+      {/* ✅ Table */}
+      <div className="table-section">
+        <GenericTable<WindfarmUI>
+          data={windfarms}
+          columns={columns}
+          loading={!!loadingList}
+          emptyText="No windfarms"
+          stickyHeader
+          cellProps={(_row, col) =>
+            col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
+          }
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={handlePageChange}
+          onRowClick={onRowClick}
+          activateOnKeyboard={false}
+        />
+      </div>
 
-          <div className="table-section">
-            <GenericTable<WindfarmUI>
-              data={windfarms}
-              columns={columns}
-              loading={!!loadingList}
-              emptyText="No windfarms"
-              stickyHeader
-              cellProps={(_row, col) =>
-                col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
-              }
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={handlePageChange}
-              onRowClick={onRowClick}
-              activateOnKeyboard={false}  
-            />
-          </div>
-        </div>
-      </main>
-
+      {/* ✅ Create Modal */}
       {showCreateModal && (
         <ModalForm
           isOpen={showCreateModal}
@@ -317,6 +307,7 @@ const WindfarmPage: React.FC<Props> = ({
         />
       )}
 
+      {/* ✅ Detail Modal */}
       {showDetailModal && (
         <ModalForm
           isOpen={showDetailModal}

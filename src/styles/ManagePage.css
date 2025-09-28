@@ -1,0 +1,61 @@
+/* Wrapper để xếp menu + content */
+.manage-wrapper {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 16px;
+}
+
+/* Dùng chung card style với sidebar */
+.manage-menu,
+.manage-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.manage-menu:hover,
+.manage-content:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Menu */
+.manage-menu {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.manage-menu a {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.manage-menu a:hover {
+  background: #e6f3ff;
+  color: #0366d6;
+}
+
+.manage-menu a.active {
+  background: #2268ff;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Content */
+.manage-content {
+  flex: 1;
+  min-width: 0;
+  padding: 1rem;
+  overflow-y: auto;
+}

@@ -1,12 +1,11 @@
 import React from "react";
-import Sidebar from "../components/sidebar";
 import Button from "../components/button";
 import GenericTable from "../components/table";
 import type { Column } from "../components/table";
 import ModalForm from "../components/Modal";
 import type { FieldColumn } from "../components/Modal";
 import Breadcrumb from "../components/breadcrumb";
-import "../styles/ProjectManagementPage.css";
+import "../styles/ProjectManagementPage.css"; // dùng chung CSS
 import "../styles/WindfarmAdminPage.css";
 
 export type WindfarmUI = {
@@ -15,33 +14,24 @@ export type WindfarmUI = {
   description?: string;
   own_company?: string;
   location?: string;
-
   projectId: string;
   projectName?: string;
-
   createdAt?: string;
   updatedAt?: string;
   createdBy?: string;
-
   turbineCount: number;
 };
 
 type Props = {
-  // list
   windfarms: WindfarmUI[];
   loadingList?: boolean;
-
-  // client-side search (vì listAll không nhận search)
   searchTerm: string;
   setSearchTerm: (s: string) => void;
-
-  // paging (server)
   total?: number;
   limit?: number;
   offset?: number;
   onOffsetChange?: (nextOffset: number) => void;
 
-  // detail/edit
   showDetailModal: boolean;
   onOpenDetail: (wf: WindfarmUI) => void;
   onCloseDetail: () => void;
@@ -51,23 +41,20 @@ type Props = {
   loadingDetail?: boolean;
   loadingUpdate?: boolean;
 
-  // delete
   onDelete: (wf: WindfarmUI) => void;
   loadingDeleteId?: string | null;
 };
 
-// ---- Format hh:mm:ss dd/mm/yy (local time) ----
+// format date
 const formatDate = (iso?: string) => {
   if (!iso) return "-";
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
-  const dd = pad(d.getDate());
-  const mm = pad(d.getMonth() + 1);
-  const yy = String(d.getFullYear()).slice(-2);
-  const hh = pad(d.getHours());
-  const mi = pad(d.getMinutes());
-  const ss = pad(d.getSeconds());
-  return `${hh}:${mi}:${ss} ${dd}/${mm}/${yy}`;
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(
+    d.getSeconds()
+  )} ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${String(
+    d.getFullYear()
+  ).slice(-2)}`;
 };
 
 const WindfarmAdminPage: React.FC<Props> = ({
@@ -79,7 +66,6 @@ const WindfarmAdminPage: React.FC<Props> = ({
   limit = 50,
   offset = 0,
   onOffsetChange,
-
   showDetailModal,
   onOpenDetail,
   onCloseDetail,
@@ -88,11 +74,10 @@ const WindfarmAdminPage: React.FC<Props> = ({
   onDetailSave,
   loadingDetail,
   loadingUpdate,
-
   onDelete,
   loadingDeleteId,
 }) => {
-  // ===== Columns: gọn, khoa học =====
+  // columns
   const columns: Column<WindfarmUI>[] = [
     {
       key: "index",
@@ -100,14 +85,18 @@ const WindfarmAdminPage: React.FC<Props> = ({
       align: "center",
       headerClassName: "col-center",
       className: "col-center",
-      render: (_r, i) => (offset || 0) + i + 1, // đánh số liên tục theo trang
+      render: (_r, i) => (offset || 0) + i + 1,
     },
     {
       key: "name",
       header: "Windfarm",
       sortable: true,
       sortAccessor: (r) => r.name.toLowerCase(),
-      render: (r) => <span className="wf-name" title={r.name}>{r.name}</span>,
+      render: (r) => (
+        <span className="wf-name" title={r.name}>
+          {r.name}
+        </span>
+      ),
       className: "wf-col-name",
     },
     {
@@ -129,7 +118,6 @@ const WindfarmAdminPage: React.FC<Props> = ({
       sortable: true,
       sortAccessor: (r) => (r.projectName ?? "").toLowerCase(),
       render: (r) => r.projectName || "-",
-      className: "wf-col-project",
     },
     {
       key: "description",
@@ -142,7 +130,6 @@ const WindfarmAdminPage: React.FC<Props> = ({
         ) : (
           "-"
         ),
-      className: "wf-col-desc",
     },
     {
       key: "turbineCount",
@@ -157,23 +144,19 @@ const WindfarmAdminPage: React.FC<Props> = ({
       key: "createdAt",
       header: "Created At",
       sortable: true,
-      sortAccessor: (r) => r.createdAt ?? "",
       render: (r) => formatDate(r.createdAt),
     },
     {
       key: "updatedAt",
       header: "Updated At",
       sortable: true,
-      sortAccessor: (r) => r.updatedAt ?? "",
       render: (r) => formatDate(r.updatedAt),
     },
     {
       key: "createdBy",
       header: "Created By",
       sortable: true,
-      sortAccessor: (r) => (r.createdBy ?? "").toLowerCase(),
       render: (r) => r.createdBy || "-",
-      className: "wf-col-createdby",
     },
     {
       key: "actions",
@@ -205,78 +188,71 @@ const WindfarmAdminPage: React.FC<Props> = ({
     },
   ];
 
-  // ===== Pagination mapping: offset/limit → page =====
+  // paging
   const pageSize = limit || 50;
   const page = Math.floor((offset || 0) / pageSize) + 1;
   const handlePageChange = (nextPage: number) => {
-    if (!onOffsetChange) return;
-    onOffsetChange((nextPage - 1) * pageSize);
+    onOffsetChange?.((nextPage - 1) * pageSize);
   };
 
-  // ===== Detail modal fields =====
+  // detail modal fields
   const detailFields: FieldColumn[] = [
-    { key: "id", label: "ID", type: "text", editable: false },
-    { key: "name", label: "Name", type: "text", editable: true },
-    { key: "own_company", label: "Own Company", type: "text", editable: true },
-    { key: "location", label: "Location", type: "text", editable: true },
-    { key: "description", label: "Description", type: "textarea", editable: true },
-    { key: "projectId", label: "Project ID", type: "text", editable: false },
-    { key: "projectName", label: "Project Name", type: "text", editable: false },
-    { key: "turbineCount", label: "Turbines", type: "number", editable: false },
-    { key: "createdAt", label: "Created At", type: "text", editable: false },
-    { key: "updatedAt", label: "Updated At", type: "text", editable: false },
-    { key: "createdBy", label: "Created By", type: "text", editable: false },
+    { key: "id", label: "ID", editable: false },
+    { key: "name", label: "Name", editable: true },
+    { key: "own_company", label: "Own Company", editable: true },
+    { key: "location", label: "Location", editable: true },
+    {
+      key: "description",
+      label: "Description",
+      type: "textarea",
+      editable: true,
+    },
+    { key: "projectId", label: "Project ID", editable: false },
+    { key: "projectName", label: "Project Name", editable: false },
+    { key: "turbineCount", label: "Turbines", editable: false },
+    { key: "createdAt", label: "Created At", editable: false },
+    { key: "updatedAt", label: "Updated At", editable: false },
+    { key: "createdBy", label: "Created By", editable: false },
   ];
 
   return (
-    <div className="ProjectManagementPage">
-      {/* Sidebar */}
-      <aside className="sidebar-content">
-        <Sidebar />
-      </aside>
+    <div className="ProjectManagementContent">
+      {/* Header + Breadcrumb */}
+      <div className="page-title">
+        <Breadcrumb items={[{ label: "Admin" }, { label: "Windfarms" }]} />
+        <h2 className="page-subtitle">All Windfarms</h2>
+      </div>
 
-      {/* Main */}
-      <main className="main-content">
-        <div className="content-body">
-          {/* Header + Breadcrumb */}
-          <div className="page-title">
-            <Breadcrumb items={[{ label: "Admin" }, { label: "Windfarms" }]} />
-            <h2 style={{ marginTop: 6 }}>All Windfarms</h2>
-          </div>
+      {/* Toolbar */}
+      <div className="toolbar">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search by name / company / location / project..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
-          {/* Toolbar */}
-          <div className="toolbar">
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search by name / company / location / project..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <div className="toolbar-actions" />
-          </div>
+      {/* Table */}
+      <div className="table-section">
+        <GenericTable<WindfarmUI>
+          data={windfarms}
+          columns={columns}
+          loading={!!loadingList}
+          emptyText="No windfarms"
+          stickyHeader
+          cellProps={(_row, col) =>
+            col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
+          }
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={handlePageChange}
+        />
+      </div>
 
-          {/* Table */}
-          <div className="table-section">
-            <GenericTable<WindfarmUI>
-              data={windfarms}
-              columns={columns}
-              loading={!!loadingList}
-              emptyText="No windfarms"
-              stickyHeader
-              cellProps={(_row, col) =>
-                col.key === "actions" ? { onClick: (e) => e.stopPropagation() } : {}
-              }
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              onPageChange={handlePageChange}
-            />
-          </div>
-        </div>
-      </main>
-
-      {/* Detail/Edit Modal */}
+      {/* Detail Modal */}
       {showDetailModal && (
         <ModalForm
           isOpen={showDetailModal}

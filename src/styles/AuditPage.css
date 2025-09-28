@@ -1,0 +1,226 @@
+/* ==== Layout chuẩn giống các page menu khác ==== */
+.AuditLogsPage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #fff;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  background: #fff;
+  box-sizing: border-box;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+/* Body */
+.content-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Page Title */
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+/* Summary */
+.audit-summary {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  background: #f5f5f5;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.toolbar .filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.toolbar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Inputs */
+.toolbar select,
+.toolbar input[type="text"],
+.toolbar input[type="date"] {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  min-width: 140px;
+  background: #fff;
+}
+
+/* Buttons */
+.toolbar button {
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Auto-refresh */
+.toolbar .autorefresh {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Table section */
+.table-section {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #ddd;
+  background: #fff;
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+/* Table */
+.audit-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 2000px; /* 👈 bảng rộng để cột thoáng */
+  font-size: 13px;
+}
+
+.audit-table th,
+.audit-table td {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.audit-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+.audit-table tbody tr:hover {
+  background: #f0f8ff;
+}
+
+/* ==== Min-width cho từng cột ==== */
+.audit-table th:nth-child(1),
+.audit-table td:nth-child(1) {
+  min-width: 140px; /* Time */
+}
+
+.audit-table th:nth-child(2),
+.audit-table td:nth-child(2) {
+  min-width: 160px; /* Actor ID */
+}
+
+.audit-table th:nth-child(3),
+.audit-table td:nth-child(3) {
+  min-width: 200px; /* Actor Name */
+}
+
+.audit-table th:nth-child(4),
+.audit-table td:nth-child(4) {
+  min-width: 240px; /* Actor Email */
+}
+
+.audit-table th:nth-child(5),
+.audit-table td:nth-child(5) {
+  min-width: 120px; /* Action */
+  text-align: center;
+}
+
+.audit-table th:nth-child(6),
+.audit-table td:nth-child(6) {
+  min-width: 160px; /* Entity Type */
+}
+
+.audit-table th:nth-child(7),
+.audit-table td:nth-child(7) {
+  min-width: 180px; /* Entity ID */
+}
+
+.audit-table th:nth-child(8),
+.audit-table td:nth-child(8) {
+  min-width: 200px; /* Entity Name */
+}
+
+.audit-table th:nth-child(9),
+.audit-table td:nth-child(9) {
+  min-width: 160px; /* Project ID */
+}
+
+.audit-table th:nth-child(10),
+.audit-table td:nth-child(10) {
+  min-width: 200px; /* IP Address */
+}
+
+.audit-table th:nth-child(11),
+.audit-table td:nth-child(11),
+.audit-table th:nth-child(12),
+.audit-table td:nth-child(12),
+.audit-table th:nth-child(13),
+.audit-table td:nth-child(13),
+.audit-table th:nth-child(14),
+.audit-table td:nth-child(14) {
+  min-width: 200px; /* Description, User Agent, Changes, Metadata */
+  text-align: center;
+}
+
+.audit-table th:nth-child(15),
+.audit-table td:nth-child(15) {
+  min-width: 180px; /* Expires At */
+}
+
+/* JSON viewer */
+.json-viewer {
+  font-family: monospace;
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .toolbar .filters {
+    width: 100%;
+    flex-direction: column;
+  }
+}

@@ -1,8 +1,16 @@
 // src/App.tsx
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { UserProvider, useUser } from "../src/context";
 
-// Public pages
+// ================= Public pages =================
 import LoginLogic from "./logic/LoginLogic";
 import OtpSignupLogic from "./logic/OtpSignupLogic";
 import OtpLoginLogic from "./logic/OtpLoginLogic";
@@ -11,17 +19,25 @@ import ForgotMailPasswordLogic from "./logic/ForgotMailPasswordLogic";
 import ForgotChangePasswordLogic from "./logic/ForgotChangePasswordLogic";
 import OtpChangeLogic from "./logic/OtpChangeLogic";
 
-// Protected pages
+// ================= Protected pages =================
 import ProjectLogic from "./logic/ProjectLogic";
 import SettingLogic from "./logic/SettingLogic";
-import SessionsListLogic from "./logic/SessionsListLoic";
+import SessionsListLogic from "./logic/SessionsListLogic";
 import UserManagementLogic from "./logic/UserManagementLogic";
 import ProjectManagementLogic from "./logic/ProjectManagementLogic";
 import MemberProjectLogic from "./logic/MemberProjectLogic";
-import WindfarmLogic from "./logic/WinfarmLogic"; // ✅ giữ nguyên
-import WindfarmAdminLogic from "./logic/WindfarmAdminLogic"; // ✅ giữ nguyên 
+import WindfarmLogic from "./logic/WinfarmLogic";
+import WindfarmAdminLogic from "./logic/WindfarmAdminLogic";
 import TurbinePageLogic from "./logic/TurbinePageLogic";
-// ===== Guards =====
+import AuditLogsLogic from "./logic/AuditLogic";
+
+// ✅ Thêm ManagePage
+import ManagePage from "./pages/ManagePage";
+
+// ✅ Thêm MainLayout (layout có Sidebar, header,...)
+import MainLayout from "./components/MainLayout";
+
+// ================= Guards =================
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser();
   if (loading) return <div>Loading...</div>;
@@ -36,12 +52,14 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// ===== Wrapper: Members =====
+// ================= Wrapper: Members =================
 function MemberProjectRouteWrapper() {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const location = useLocation() as any;
-  const projectFromState = location.state?.project as { id: string; name?: string } | undefined;
+  const projectFromState = location.state?.project as
+    | { id: string; name?: string }
+    | undefined;
 
   return (
     <MemberProjectLogic
@@ -53,61 +71,114 @@ function MemberProjectRouteWrapper() {
   );
 }
 
-// ===== Wrapper: Windfarms in Project =====
+// ================= Wrapper: Windfarms in Project =================
 function WindfarmRouteWrapper() {
-  // WindfarmLogic tự đọc useParams + useLocation bên trong
   return <WindfarmLogic />;
 }
 
+// ================= App =================
 export default function App() {
   return (
     <UserProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public */}
-          <Route path="/login" element={<PublicRoute><LoginLogic /></PublicRoute>} />
-          <Route path="/sign-up" element={<PublicRoute><SignUpLogic /></PublicRoute>} />
-          <Route path="/otp-login" element={<PublicRoute><OtpLoginLogic /></PublicRoute>} />
-          <Route path="/otp-sign-up" element={<PublicRoute><OtpSignupLogic /></PublicRoute>} />
-          <Route path="/forgot-password" element={<PublicRoute><ForgotMailPasswordLogic /></PublicRoute>} />
-          <Route path="/change-password" element={<PublicRoute><ForgotChangePasswordLogic /></PublicRoute>} />
-          <Route path="/otp-forgot" element={<PublicRoute><OtpChangeLogic /></PublicRoute>} />
-
-          {/* Protected */}
-          <Route path="/project" element={<ProtectedRoute><ProjectLogic /></ProtectedRoute>} />
-          <Route path="/project-management" element={<ProtectedRoute><ProjectManagementLogic /></ProtectedRoute>} />
+          {/* ================= Public ================= */}
           <Route
-            path="/project-management/:projectId/members"
+            path="/login"
             element={
-              <ProtectedRoute>
-                <MemberProjectRouteWrapper />
-              </ProtectedRoute>
-            }
-          />
-          {/* ✅ Windfarms trong project */}
-          <Route
-            path="/project/:projectId/windfarms"
-            element={
-              <ProtectedRoute>
-                <WindfarmRouteWrapper />
-              </ProtectedRoute>
+              <PublicRoute>
+                <LoginLogic />
+              </PublicRoute>
             }
           />
           <Route
-            path="/project/:projectId/windfarms/:windfarmId/turbines"
+            path="/sign-up"
             element={
-              <ProtectedRoute>
-                <TurbinePageLogic />
-              </ProtectedRoute>
+              <PublicRoute>
+                <SignUpLogic />
+              </PublicRoute>
             }
           />
-          <Route path="/windfarm-management" element={<ProtectedRoute>< WindfarmAdminLogic/></ProtectedRoute>} />
+          <Route
+            path="/otp-login"
+            element={
+              <PublicRoute>
+                <OtpLoginLogic />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/otp-sign-up"
+            element={
+              <PublicRoute>
+                <OtpSignupLogic />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotMailPasswordLogic />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <PublicRoute>
+                <ForgotChangePasswordLogic />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/otp-forgot"
+            element={
+              <PublicRoute>
+                <OtpChangeLogic />
+              </PublicRoute>
+            }
+          />
 
-          <Route path="/setting" element={<ProtectedRoute><SettingLogic /></ProtectedRoute>} />
-          <Route path="/sessions" element={<ProtectedRoute><SessionsListLogic /></ProtectedRoute>} />
-          <Route path="/user" element={<ProtectedRoute><UserManagementLogic /></ProtectedRoute>} />
+          {/* ================= Protected (có MainLayout) ================= */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/project" element={<ProjectLogic />} />
+            <Route
+              path="/project-management"
+              element={<ProjectManagementLogic />}
+            />
+            <Route
+              path="/project-management/:projectId/members"
+              element={<MemberProjectRouteWrapper />}
+            />
+            <Route
+              path="/project/:projectId/windfarms"
+              element={<WindfarmRouteWrapper />}
+            />
+            <Route
+              path="/project/:projectId/windfarms/:windfarmId/turbines"
+              element={<TurbinePageLogic />}
+            />
+            <Route
+              path="/windfarm-management"
+              element={<WindfarmAdminLogic />}
+            />
+            <Route path="/audit-logs" element={<AuditLogsLogic />} />
+            <Route path="/setting" element={<SettingLogic />} />
+            <Route path="/sessions" element={<SessionsListLogic />} />
+            <Route path="/user" element={<UserManagementLogic />} />
 
-          {/* Wildcard */}
+            {/* ✅ Thêm ManagePage vào trong MainLayout */}
+            <Route path="/manage/*" element={<ManagePage />} />
+          </Route>
+
+          {/* ================= Wildcard ================= */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

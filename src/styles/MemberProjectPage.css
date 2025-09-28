@@ -1,46 +1,23 @@
-/* ================== Container chính ================== */
-.MemberProjectPage {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  background: #fff;
-}
-
-/* ================== Sidebar ================== */
-.sidebar-content {
-  width: 220px;
-  flex-shrink: 0;
-  overflow-y: auto;
-  background: #f9f9f9;
-}
-
-/* ================== Main content ================== */
-.main-content {
+/* ================== Content body (bên trong MainLayout .main-content) ================== */
+.MemberProjectPage .content-body {
   flex: 1;
-  min-width: 0;
+  min-height: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  padding: 1rem;
-  background: #fff;
+  width: 100%; /* ✅ chiếm toàn bộ chiều ngang */
+  max-width: none; /* ✅ bỏ giới hạn giữa */
+  margin: 0;
+  gap: 12px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding-right: 4px;
 }
 
-/* ================== Content body ================== */
-.content-body {
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 1400px;
-  gap: 1rem;
-  position: relative;
-}
-
-.content-body::after {
-  content: '';
+.MemberProjectPage .content-body::after {
+  content: "";
   display: block;
-  height: 5rem;
+  height: 48px; /* khoảng trống cuối khi cuộn */
 }
 
 /* ================== Header ================== */
@@ -50,15 +27,19 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .page-title {
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 600;
+  color: #000;
+  margin: 0;
 }
 
 /* ================== Invite section ================== */
 .invite-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .invite-label {
@@ -82,22 +63,27 @@
   padding: 6px 8px;
   border: 1px solid #999;
   font-size: 13px;
+  border-radius: 8px;
   box-sizing: border-box;
+  background: #fff;
+  color: #000;
 }
 
 .invite-input:focus {
   outline: none;
   border: 1px solid #2d4373;
+  box-shadow: 0 0 0 3px rgba(45, 67, 115, 0.08);
 }
 
 .invite-add-btn {
-  padding: 4px 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
 }
 
-/* Gợi ý (dropdown) */
+/* Gợi ý dropdown */
 .suggest-dropdown {
   position: absolute;
-  top: calc(100% + 0px);
+  top: 100%;
   left: 0;
   right: 0;
   background: #fff;
@@ -106,6 +92,8 @@
   z-index: 10;
   max-height: 240px;
   overflow-y: auto;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 .suggest-item {
@@ -144,7 +132,7 @@
 .filter-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .filter-label {
@@ -156,40 +144,54 @@
   padding: 6px 8px;
   border: 1px solid #999;
   font-size: 13px;
+  border-radius: 8px;
+  background: #fff;
+  color: #000;
 }
 
 .filter-input:focus {
   outline: none;
   border: 1px solid #2d4373;
+  box-shadow: 0 0 0 3px rgba(45, 67, 115, 0.08);
 }
 
-/* ================== Table & Role badge ================== */
+/* ================== Table ================== */
 .table-wrap {
-  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
+  background: #fff;
 }
 
-.role-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  line-height: 18px;
-  border: 1px solid transparent;
+/* Nếu bảng là .user-table thì thêm đoạn này để fix lỗi co giữa */
+.user-table {
+  width: 100%;
+  min-width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  font-size: 13px;
 }
-.role-owner {
-  background: #ffe9e9;
-  border-color: #ff9b9b;
-  color: #a60000;
+
+.user-table th,
+.user-table td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+  background: #fff;
 }
-.role-editor {
-  background: #fff4db;
-  border-color: #ffd37a;
-  color: #8a5a00;
+
+.user-table th {
+  font-weight: 600;
+  text-align: left;
+  background: #f1f1f1;
 }
-.role-viewer {
-  background: #e9f3ff;
-  border-color: #9bc6ff;
-  color: #003c82;
+
+.user-table tbody tr:hover {
+  background-color: #e6f2ff;
 }
 
 /* ================== Pagination ================== */
@@ -206,20 +208,18 @@
 }
 
 /* ================== Responsive ================== */
-@media (max-width: 1200px) { .content-body { max-width: 1000px; } }
-
-@media (max-width: 992px) {
-  .sidebar-content { width: 200px; }
-}
-
-@media (max-width: 768px) {
-  .MemberProjectPage { flex-direction: column; }
-  .sidebar-content { width: 100%; order: -1; }
-  .main-content { width: 100%; overflow-x: auto; }
-}
-
 @media (max-width: 576px) {
-  .invite-row { flex-direction: column; }
-  .invite-add-btn { width: 100%; }
-  .filter-input, .invite-input { font-size: 12px; padding: 4px 6px; }
+  .invite-row {
+    flex-direction: column;
+  }
+
+  .invite-add-btn {
+    width: 100%;
+  }
+
+  .filter-input,
+  .invite-input {
+    font-size: 12px;
+    padding: 4px 6px;
+  }
 }
