@@ -5,14 +5,13 @@
   min-width: 60px;
   text-align: center;
   white-space: nowrap;
-  border-radius: 0;
   box-sizing: border-box;
   cursor: pointer;
   margin: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-decoration: none;   /* bỏ gạch chân NavLink */
+  text-decoration: none; /* bỏ gạch chân NavLink */
 }
 
 /* Navigation Button */
@@ -30,21 +29,33 @@
 }
 
 .btn-nav.active {
-  background: #3b5998; /* màu active */
+  background: #4ba4d4; /* màu active */
   color: #fff;
-  border: 1px solid #0F3232;
+  border: 1px solid #0f3232;
 }
 .btn-nav + .btn-nav {
   border-left: none; /* bỏ viền trái của nút đứng sau */
 }
 /* Các nút khác giữ nguyên */
-.btn-detail {
-  background: #3b5998;
+.btn-create {
+  background: #5295b9;
   color: #fff;
-  border: 1px solid #2d4373;
+  border: 1px solid #5295b9;
+  border-radius: 7px;
+}
+.btn-create:hover {
+  background: #5295b9;
+  border-radius: 7px;
+}
+.btn-detail {
+  background: #5295b9;
+  color: #fff;
+  border: 1px solid #5295b9;
+  border-radius: 7px;
 }
 .btn-detail:hover {
-  background: #2d4373;
+  background: #5295b9;
+  border-radius: 7px;
 }
 
 .btn-approve {
@@ -52,9 +63,11 @@
   color: #fff;
   border: 1px solid #23723b;
   margin-left: 1rem;
+  border-radius: 7px;
 }
 .btn-approve:hover {
   background: #1a502a;
+  border-radius: 7px;
 }
 .btn-approve:disabled {
   background: #1a502a;
@@ -62,28 +75,33 @@
   border: none;
   opacity: 0.6;
   cursor: not-allowed;
+  border-radius: 7px;
 }
 
 .btn-approve.hidden {
   visibility: hidden;
   border: 1px solid transparent;
   background: transparent;
+  border-radius: 7px;
 }
 
 .btn-cancel {
   background: #e0e0e0;
   border: none;
   color: #000;
+  border-radius: 7px;
 }
 
 .btn-submit {
-  background: #3b5998;
+  background: #5295b9;
   color: #fff;
   border: none;
+  border-radius: 7px;
 }
 .btn-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  border-radius: 7px;
 }
 
 .btn-delete {
@@ -92,7 +110,9 @@
   border: 1px solid #aa0404;
   outline: none;
   cursor: pointer;
+  border-radius: 7px;
 }
 .btn-delete:hover {
   background-color: #aa0404;
+  border-radius: 7px;
 }

@@ -1,0 +1,48 @@
+.ManagePage {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: #e7e7e7;
+  gap: 10px;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-x: hidden; /* ngăn cuộn ngang toàn trang */
+}
+
+/* Menu dọc giữa sidebar và content */
+.manage-menu {
+  width: 180px; /* ✅ sửa đơn vị */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.manage-menu a {
+  padding: 8px 10px;
+  text-decoration: none;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+}
+
+.manage-menu a.active,
+.manage-menu a:hover {
+  background: #4ba4d4;
+  color: #fff;
+}
+
+.manage-content {
+  display: flex; /* ✅ để nó chiếm phần còn lại */
+  min-width: 0; /* ✅ cho phép co lại khi thiếu chỗ */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden; /* ✅ ẩn cuộn ngang */
+}

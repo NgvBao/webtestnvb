@@ -21,6 +21,9 @@ type UserManagementPageProps = {
   approveLoading: string | null;
   deleteLoading: string | null;
   onDeleteClick: (user: User) => void;
+
+  // ✅ mới: để GenericTable hiện loading
+  loadingList?: boolean;
 };
 
 function UserManagementPage({
@@ -31,21 +34,64 @@ function UserManagementPage({
   deleteLoading,
   onApproveClick,
   onDeleteClick,
+  loadingList,
 }: UserManagementPageProps) {
   // ---------------- Cấu hình cột ----------------
   const columns: Column<User>[] = [
-    { key: "index", header: "#", size: 0.05, render: (_, i) => i + 1 },
-    { key: "name", header: "Name", size: 0.2 },
-    { key: "email", header: "Email", size: 0.25 },
-    { key: "phone", header: "Phone", size: 0.15 },
-    { key: "role", header: "Role", size: 0.1 },
+    {
+      key: "index",
+      header: "#",
+      size: 0.06,
+      align: "center",
+      render: (_row, i) => i + 1, // ✅ dùng _row để tránh lỗi TS6133
+      headerClassName: "col-center",
+      className: "col-center",
+    },
+    {
+      key: "name",
+      header: "Name",
+      size: 0.22,
+      sortable: true,
+      sortAccessor: (u) => u.name.toLowerCase(),
+    },
+    {
+      key: "email",
+      header: "Email",
+      size: 0.26,
+      sortable: true,
+      sortAccessor: (u) => u.email.toLowerCase(),
+    },
+    {
+      key: "phone",
+      header: "Phone",
+      size: 0.16,
+      sortable: true,
+      sortAccessor: (u) => u.phone,
+    },
+    {
+      key: "role",
+      header: "Role",
+      size: 0.1,
+      align: "center",
+      sortable: true,
+      sortAccessor: (u) => u.role,
+      headerClassName: "col-center",
+      className: "col-center",
+    },
     {
       key: "status",
       header: "Status",
       size: 0.1,
+      align: "center",
+      sortable: true,
+      sortAccessor: (u) => u.status,
+      headerClassName: "col-center",
+      className: "col-center",
       render: (user) => (
         <span
-          className={user.status === "Active" ? "status-active" : "status-inactive"}
+          className={
+            user.status === "Active" ? "status-active" : "status-inactive"
+          }
         >
           {user.status}
         </span>
@@ -54,27 +100,33 @@ function UserManagementPage({
     {
       key: "actions",
       header: "Action",
-      size: 0.15,
+      size: 0.16,
       className: "action-cell",
       render: (user) => (
-      <>
-        <Button
-          variant="delete"
-          onClick={() => onDeleteClick(user)}
-          loading={deleteLoading === user.id}
+        <>
+          <Button
+            variant="delete"
+            onClick={(e: any) => {
+              e.stopPropagation(); // tránh click cả dòng
+              onDeleteClick(user);
+            }}
+            loading={deleteLoading === user.id}
+            style={{ marginRight: 8 }}
           >
             Delete
-        </Button>
-        <Button
-          variant="approve"
-          hidden={user.status === "Active"}
-          onClick={() => onApproveClick(user)}
-          loading={approveLoading === user.id}
-        >
-          Approve
-        </Button>
-      </>
-
+          </Button>
+          <Button
+            variant="approve"
+            hidden={user.status === "Active"}
+            onClick={(e: any) => {
+              e.stopPropagation();
+              onApproveClick(user);
+            }}
+            loading={approveLoading === user.id}
+          >
+            Approve
+          </Button>
+        </>
       ),
     },
   ];
@@ -82,9 +134,9 @@ function UserManagementPage({
   return (
     <div className="UserManagementPage">
       {/* Sidebar */}
-      <aside className="sidebar-content">
+      {/* <aside className="sidebar-content">
         <Sidebar />
-      </aside>
+      </aside> */}
 
       {/* Main Content */}
       <main className="main-content">
@@ -101,7 +153,20 @@ function UserManagementPage({
           </div>
 
           {/* Table */}
-          <GenericTable<User> data={users} columns={columns} />
+          <GenericTable<User>
+            data={users}
+            columns={columns}
+            loading={!!loadingList}
+            emptyText="No users"
+            stickyHeader
+            // Nếu sau này muốn click cả dòng: onRowClick={(u) => ...}
+            // Chặn nổi bọt ở cell Actions (phòng ngừa):
+            cellProps={(_row, col) =>
+              col.key === "actions"
+                ? { onClick: (e) => e.stopPropagation() }
+                : {}
+            }
+          />
         </div>
       </main>
     </div>

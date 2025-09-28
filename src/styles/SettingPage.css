@@ -1,103 +1,149 @@
 /* ================== Container chính - toàn bộ page ================== */
 .SettingPage {
-  display: flex;        /* sidebar + main content theo hàng ngang */
-  height: 100vh;        /* full chiều cao viewport */
-  width: 100vw;         /* full chiều ngang */
-  background: #ffffff;  /* optional để tách sidebar và main rõ hơn */
+  display: flex; /* sidebar + main content theo hàng ngang */
+  height: 100vh;
+  width: 100vw;
+  padding: 10px; /* ↑ tăng nhẹ padding cho thoáng */
+  gap: 10px; /* ↑ khoảng cách giữa 2 khối */
+  background: #e7e7e7 !important; /* nền xám dịu hơn */
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, sans-serif; /* font mềm hơn */
 }
 
 /* ================== Sidebar ================== */
 .sidebar-content {
-  width: 220px;         /* chiều ngang cố định */
-  flex-shrink: 0;       /* không co lại khi container bị thu nhỏ */
-  overflow-y: auto;     /* scroll nếu nội dung dài */
+  width: 90px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 16px; /* ↑ bo góc lớn hơn */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); /* đổ bóng nhẹ, tản rộng hơn */
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.sidebar-content:hover {
+  /* hiệu ứng nhẹ khi hover cho cảm giác “nổi” */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 /* ================== Main content ================== */
 .main-content {
-  flex: 1;              /* chiếm phần còn lại */
-  min-width: 0;         /* tránh tràn nội dung */
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;  /* căn ngang nội dung body */
+  align-items: center;
   background: #fff;
+  border-radius: 16px; /* ↑ bo góc lớn hơn */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08); /* đổ bóng dịu hơn */
   overflow-y: auto;
-  padding: 1rem;
+  padding: 2rem; /* ↑ nới padding cho thoáng */
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
-.header-bar{
-    width: 100%;
-    padding: 12px 20px;
-    padding-bottom: 60px;
-    background: #ffffff;
-    font-size: 13px;
-    display: flex;           /* bật flex */
-    justify-content: flex-end; /* đẩy nội dung sang phải */
-    align-items: center;     /* căn giữa theo chiều dọc */
+.main-content:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
-.btn-logout{
-    border: solid 1px #000000;
-    background: #ffffff;
-    padding: 5px 10px;
-    color: #DD0000;
-    cursor: pointer;
-    font-size: 13px;
-    border-radius: 0px;
-    font-weight: bold;
+
+.header-bar {
+  width: 100%;
+  padding: 16px 24px 60px; /* ↑ padding ngang mềm hơn */
+  background: #ffffff;
+  font-size: 14px; /* ↑ chữ lớn hơn 1 chút */
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
+
+.btn-logout {
+  border: 1px solid #00000020; /* viền nhạt hơn */
+  background: #ffffff;
+  padding: 6px 12px;
+  color: #d00000;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 6px; /* ↑ bo góc cho nút mềm hơn */
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+.btn-logout:hover {
+  background: #f4f4f4;
+}
+
+/* ================== Change password form ================== */
 .change-password-form {
-    max-width: 400px;
-    width: 100%;          /* stretch full width trong container */
-    margin: 0 auto;
-    border: 1px solid #000000;
-    gap: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch; /* con sẽ kéo full width */
-    padding: 16px;
-    box-sizing: border-box;
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  border: 1px solid #00000020; /* viền mảnh và nhạt */
+  gap: 0.75rem; /* ↑ khoảng cách giữa các input */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 20px;
+  box-sizing: border-box;
+  border-radius: 12px; /* bo góc form */
+  background: #fafafa; /* nền nhạt để form nổi nhẹ */
+}
+
+/* ✅ Fix lệch: buộc toàn bộ phần tử trong form dùng border-box */
+.change-password-form,
+.change-password-form * {
+  box-sizing: border-box;
 }
 
 .input-group {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
+
 .title-group {
-    font-size: 13px;
-    color: #000000;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+  display: block; /* đảm bảo label chiếm toàn dòng */
 }
-.save-btn{
-    background-color: #3B5998;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    font-size: 13px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 0px;
+
+.save-btn {
+  background-color: #5295b9;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  margin: 6px 2px;
+  cursor: pointer;
+  border-radius: 6px; /* ↑ bo góc nút */
+  transition: background 0.2s ease;
 }
+.save-btn:hover {
+  background-color: #5295b9;
+}
+
 .input-field {
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border: 1px solid #ccc;
-  border-radius: 0px;
+  border-radius: 6px; /* ↑ bo góc input */
   background: #ffffff;
-  color:#000;
+  color: #000;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .input-field:focus {
-    outline: none;
-    border-color: #3B5998;
+  outline: none;
+  border-color: #3b5998;
+  box-shadow: 0 0 4px rgba(59, 89, 152, 0.4);
 }
+
 @media (max-width: 768px) {
   .SettingPage {
-    flex-direction: column; /* sidebar lên trên, main xuống dưới */
+    flex-direction: column;
   }
   .sidebar-content {
     width: 100%;
     height: auto;
-    order: -1; /* cho sidebar hiện trước main */
+    order: -1;
   }
   .main-content {
     width: 100%;
   }
-  
 }

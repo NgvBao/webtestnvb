@@ -3,6 +3,7 @@
   overflow-x: auto;
   border: 1px solid #ccc;
   background: #fff;
+  border-radius: 10px;
 }
 
 /* ================== Table ================== */
@@ -54,6 +55,6 @@ td.no-data {
 }
 
 .status-inactive {
-  color: #DD0000;
+  color: #dd0000;
   font-weight: 600;
 }

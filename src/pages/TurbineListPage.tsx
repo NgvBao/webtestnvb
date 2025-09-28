@@ -1,6 +1,7 @@
-
 import Sidebar from "../components/sidebar";
 import "../styles/TurbineListPage.css";
+import { Search } from "lucide-react";
+
 type Turbine = {
   id: string;
   name: string;
@@ -59,17 +60,13 @@ function TurbineListPage({
       {/* Sidebar */}
       <aside className="sidebar-content">
         <Sidebar />
-
       </aside>
 
       {/* Main Content */}
       <main className="main-content">
-        <div className="content-body">
-          {/* Toolbar */}
-          <div className="toolbar">
-            <button className="btn-create" onClick={onCreateClick}>
-              + Create
-            </button>
+        <div className="page-header">
+          <h1 className="page-title">Turbine List</h1>
+          <div className="search-wrapper">
             <input
               type="text"
               className="search-input"
@@ -77,9 +74,17 @@ function TurbineListPage({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            <Search className="search-icon" size={18} />
+          </div>
+        </div>
+
+        <div className="content-body">
+          <div className="toolbar">
+            <button className="btn-create" onClick={onCreateClick}>
+              + Create
+            </button>
           </div>
 
-          {/* Table */}
           <div className="table-container">
             <table className="turbine-table">
               <thead>
@@ -129,110 +134,110 @@ function TurbineListPage({
         </div>
       </main>
 
-      {/* Create Modal */}
-{showCreateModal && (
-  <div className="modal-overlay">
-    <div className="modal-box">
-      <h3 className="modal-title">Create Turbine</h3>
-      <div className="modal-body">
-        <input
-          type="text"
-          className="modal-input"
-          placeholder="Turbine Name"
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-        />
-        <input
-          type="text"
-          className="modal-input"
-          placeholder="Company"
-          value={newCompany}
-          onChange={(e) => setNewCompany(e.target.value)}
-        />
-      </div>
-      <div className="modal-actions">
-        <button className="btn btn-cancel" onClick={onCancelCreate}>
-          Cancel
-        </button>
-        <button
-          className="btn btn-submit"
-          onClick={() => onCreateSubmit(newName.trim(), newCompany.trim())}
-          disabled={!newName.trim() || !newCompany.trim()}
-        >
-          Create
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-{detailData && (
-  <div className="modal-overlay">
-    <div className="modal-box">
-      <h3 className="modal-title">Turbine Detail</h3>
-      <div className="modal-body">
-        <div className="form-group">
-          <label>Name</label>
-          <input
-            type="text"
-            className="modal-input"
-            value={detailData?.name ?? ""}
-            onChange={(e) =>
-              detailData &&
-              onDetailChange({ ...detailData, name: e.target.value })
-            }
-          />
+      {showCreateModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3 className="modal-title">Create Turbine</h3>
+            <div className="modal-body">
+              <input
+                type="text"
+                className="modal-input"
+                placeholder="Turbine Name"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+              />
+              <input
+                type="text"
+                className="modal-input"
+                placeholder="Company"
+                value={newCompany}
+                onChange={(e) => setNewCompany(e.target.value)}
+              />
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-cancel" onClick={onCancelCreate}>
+                Cancel
+              </button>
+              <button
+                className="btn btn-submit"
+                onClick={() =>
+                  onCreateSubmit(newName.trim(), newCompany.trim())
+                }
+                disabled={!newName.trim() || !newCompany.trim()}
+              >
+                Create
+              </button>
+            </div>
+          </div>
         </div>
+      )}
 
-        <div className="form-group">
-          <label>Company</label>
-          <input
-            type="text"
-            className="modal-input"
-            value={detailData?.company ?? ""}
-            onChange={(e) =>
-              detailData &&
-              onDetailChange({ ...detailData, company: e.target.value })
-            }
-          />
+      {detailData && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3 className="modal-title">Turbine Detail</h3>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Name</label>
+                <input
+                  type="text"
+                  className="modal-input"
+                  value={detailData?.name ?? ""}
+                  onChange={(e) =>
+                    detailData &&
+                    onDetailChange({ ...detailData, name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Company</label>
+                <input
+                  type="text"
+                  className="modal-input"
+                  value={detailData?.company ?? ""}
+                  onChange={(e) =>
+                    detailData &&
+                    onDetailChange({ ...detailData, company: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Created</label>
+                <input
+                  type="text"
+                  className="modal-input readonly"
+                  value={detailData?.created ?? ""}
+                  readOnly
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Images</label>
+                <input
+                  type="text"
+                  className="modal-input readonly"
+                  value={String(detailData?.images ?? "")}
+                  readOnly
+                />
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-cancel" onClick={onCloseDetail}>
+                Close
+              </button>
+              <button className="btn btn-delete" onClick={onDeleteDetail}>
+                Delete
+              </button>
+              <button className="btn btn-submit" onClick={onSaveDetail}>
+                Save
+              </button>
+            </div>
+          </div>
         </div>
-
-        <div className="form-group">
-          <label>Created</label>
-          <input
-            type="text"
-            className="modal-input readonly"
-            value={detailData?.created ?? ""}
-            readOnly
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Images</label>
-          <input
-            type="text"
-            className="modal-input readonly"
-            value={String(detailData?.images ?? "")}
-            readOnly
-          />
-        </div>
-      </div>
-
-      <div className="modal-actions">
-        <button className="btn btn-cancel" onClick={onCloseDetail}>
-          Close
-        </button>
-        <button className="btn btn-delete" onClick={onDeleteDetail}>
-          Delete
-        </button>
-        <button className="btn btn-submit" onClick={onSaveDetail}>
-          Save
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 }

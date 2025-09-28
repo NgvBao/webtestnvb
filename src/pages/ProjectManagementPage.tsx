@@ -91,12 +91,17 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
 }) => {
   // ===== Fields (Detail) =====
   const detailFields = [
-    { key: "name",           label: "Project Name",  editable: true },
-    { key: "windfarmCount",  label: "Windfarms",     editable: false },
-    { key: "description",    label: "Description",   editable: true,  type: "textarea" as const },
-    { key: "performance",    label: "Performance",   editable: false },
-    { key: "createdAt",      label: "Created At",    editable: false },
-    { key: "status",         label: "Status",        editable: false },
+    { key: "name", label: "Project Name", editable: true },
+    { key: "windfarmCount", label: "Windfarms", editable: false },
+    {
+      key: "description",
+      label: "Description",
+      editable: true,
+      type: "textarea" as const,
+    },
+    { key: "performance", label: "Performance", editable: false },
+    { key: "createdAt", label: "Created At", editable: false },
+    { key: "status", label: "Status", editable: false },
   ];
 
   const detailValues: Record<string, string> = detailData
@@ -108,18 +113,31 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
         createdAt: detailData.createdAt ?? "",
         status: String(detailData.status ?? ""),
       }
-    : { name: "", windfarmCount: "", description: "", performance: "", createdAt: "", status: "" };
+    : {
+        name: "",
+        windfarmCount: "",
+        description: "",
+        performance: "",
+        createdAt: "",
+        status: "",
+      };
 
   const handleDetailFieldChange = (key: string, value: string) => {
     if (!detailData) return;
-    if (key === "name")        onDetailChange({ ...detailData, name: value });
-    if (key === "description") onDetailChange({ ...detailData, description: value });
+    if (key === "name") onDetailChange({ ...detailData, name: value });
+    if (key === "description")
+      onDetailChange({ ...detailData, description: value });
   };
 
   // ===== Fields (Create) =====
   const createFields = [
-    { key: "name",        label: "Project Name", editable: true },
-    { key: "description", label: "Description",  editable: true, type: "textarea" as const },
+    { key: "name", label: "Project Name", editable: true },
+    {
+      key: "description",
+      label: "Description",
+      editable: true,
+      type: "textarea" as const,
+    },
   ];
   const createValues: Record<string, string> = {
     name: newName,
@@ -137,18 +155,31 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       size: 0.12,
       className: "windfarms",
       render: (p) => (
-        <span style={{ display: "inline-block", width: "100%", textAlign: "center" }}>
+        <span
+          style={{
+            display: "inline-block",
+            width: "100%",
+            textAlign: "center",
+          }}
+        >
           {p.windfarmCount}
         </span>
       ),
     },
-    { key: "performance", header: "Performance", size: 0.16, className: "performance" },
+    {
+      key: "performance",
+      header: "Performance",
+      size: 0.16,
+      className: "performance",
+    },
     {
       key: "status",
       header: "Status",
       size: 0.12,
       className: "status",
-      render: (p) => <span className={statusClass(String(p.status))}>{p.status}</span>,
+      render: (p) => (
+        <span className={statusClass(String(p.status))}>{p.status}</span>
+      ),
     },
     {
       key: "actions",
@@ -157,13 +188,19 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
       className: "action-cell",
       render: (p) => (
         <>
-          <Button variant="detail" style={{ marginRight: "0.5rem" }} onClick={() => onOpenDetail(p)}>
+          <Button
+            variant="detail"
+            style={{ marginRight: "0.5rem" }}
+            onClick={() => onOpenDetail(p)}
+          >
             Detail
           </Button>
           <Button
             variant="delete"
             onClick={() => onDeleteDetail()}
-            loading={!!loadingDeleteDetail /* có thể đổi theo per-row id nếu cần */}
+            loading={
+              !!loadingDeleteDetail /* có thể đổi theo per-row id nếu cần */
+            }
           >
             Delete
           </Button>
@@ -175,9 +212,9 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
   return (
     <div className="ProjectManagementPage">
       {/* Sidebar */}
-      <aside className="sidebar-content">
+      {/* <aside className="sidebar-content">
         <Sidebar />
-      </aside>
+      </aside> */}
 
       {/* Main */}
       <main className="main-content">
@@ -228,7 +265,9 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
               </Button>
               <Button
                 variant="submit"
-                onClick={() => onCreateSubmit(newName.trim(), newDescription.trim())}
+                onClick={() =>
+                  onCreateSubmit(newName.trim(), newDescription.trim())
+                }
                 loading={!!loadingCreate}
                 disabled={!newName.trim()}
               >
@@ -254,10 +293,18 @@ const ProjectManagementPage: React.FC<ProjectManagementPageProps> = ({
               <Button variant="cancel" onClick={onCloseDetail}>
                 Close
               </Button>
-              <Button variant="delete" onClick={onDeleteDetail} loading={!!loadingDeleteDetail}>
+              <Button
+                variant="delete"
+                onClick={onDeleteDetail}
+                loading={!!loadingDeleteDetail}
+              >
                 Delete
               </Button>
-              <Button variant="submit" onClick={onSaveDetail} loading={!!loadingSaveDetail}>
+              <Button
+                variant="submit"
+                onClick={onSaveDetail}
+                loading={!!loadingSaveDetail}
+              >
                 Save
               </Button>
             </>
