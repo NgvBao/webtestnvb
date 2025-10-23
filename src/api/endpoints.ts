@@ -28,25 +28,33 @@ export const AUTH = {
 // =======================
 // Projects
 // =======================
+// =======================
+// Projects
+// =======================
 export const PROJECTS = {
-  CREATE: "/projects/",                 // POST /projects/
-  LIST: "/projects/",                   // GET  /projects/
-  DETAIL: (project_id: string) => `/projects/${project_id}`,
-  LIST_ALL: "/projects/all",            // GET  /projects/all
+  CREATE: "/projects/", // POST /projects/
+  LIST: "/projects/", // GET  /projects/
+  DETAIL: (project_id: string) => `/projects/${project_id}`, // GET detail
+  LIST_ALL: "/projects/list", // GET  /projects/list (admin)
+
+  UPDATE: (project_id: string) => `/projects/${project_id}`, // PUT
+  DELETE: (project_id: string) => `/projects/${project_id}`, // DELETE
+  BULK_DELETE: "/projects/bulk", // DELETE (body: string[])
 } as const;
 
 // =======================
 // Windfarms
 // =======================
 export const WINDFARMS = {
-  CREATE: (project_id: string) => `/windfarms/project/${project_id}`,        // POST
-  BATCH_CREATE: (project_id: string) => `/windfarms/project/${project_id}/batch`, // POST
-  LIST_BY_PROJECT: (project_id: string) => `/windfarms/project/${project_id}`,    // GET
-  LIST_ALL: "/windfarms/list",                                                     // GET
-  DETAIL: (windfarm_id: string) => `/windfarms/${windfarm_id}`,                   // GET
-  UPDATE: (windfarm_id: string) => `/windfarms/${windfarm_id}`,                   // PUT
-  DELETE: (windfarm_id: string) => `/windfarms/${windfarm_id}`,                   // DELETE
-  BULK_DELETE: "/windfarms/bulk",                                                 // DELETE (body: string[])
+  CREATE: (project_id: string) => `/windfarms/project/${project_id}`, // POST
+  BATCH_CREATE: (project_id: string) =>
+    `/windfarms/project/${project_id}/batch`, // POST
+  LIST_BY_PROJECT: (project_id: string) => `/windfarms/project/${project_id}`, // GET
+  LIST_ALL: "/windfarms/list", // GET
+  DETAIL: (windfarm_id: string) => `/windfarms/${windfarm_id}`, // GET
+  UPDATE: (windfarm_id: string) => `/windfarms/${windfarm_id}`, // PUT
+  DELETE: (windfarm_id: string) => `/windfarms/${windfarm_id}`, // DELETE
+  BULK_DELETE: "/windfarms/bulk", // DELETE (body: string[])
 } as const;
 
 // =======================
@@ -54,10 +62,12 @@ export const WINDFARMS = {
 // =======================
 export const TURBINES = {
   // POST /turbines/windfarm/{windfarm_id}
-  CREATE_BY_WINDFARM: (windfarm_id: string) => `/turbines/windfarm/${windfarm_id}`,
+  CREATE_BY_WINDFARM: (windfarm_id: string) =>
+    `/turbines/windfarm/${windfarm_id}`,
 
   // GET /turbines/windfarm/{windfarm_id}
-  LIST_BY_WINDFARM: (windfarm_id: string) => `/turbines/windfarm/${windfarm_id}`,
+  LIST_BY_WINDFARM: (windfarm_id: string) =>
+    `/turbines/windfarm/${windfarm_id}`,
 
   // GET /turbines/list  (Admin-only)
   LIST_ALL: "/turbines/list",
@@ -73,24 +83,26 @@ export const TURBINES = {
 // =======================
 // Audit
 // =======================
+
 export const AUDIT = {
-  PROJECT_LOGS: (project_id: string) => `/audit/project/${project_id}`,               // GET
-  MY_ACTIVITY: "/audit/my-activity",                                                 // GET
-  ENTITY_LOGS: (entity_type: string, entity_id: string) => `/audit/entity/${entity_type}/${entity_id}`, // GET
-  PROJECT_STATS: (project_id: string) => `/audit/project/${project_id}/stats`,       // GET
-  GLOBAL_STATS: "/audit/global-stats",                                               // GET
-  PROJECT_EXPORT: (project_id: string) => `/audit/project/${project_id}/export`,     // GET
+  LOGS: "/audit/logs", // GET (query filter)
+  CLEANUP: "/audit/cleanup", // POST
+  STATS: "/audit/stats", // GET
 } as const;
 
 // =======================
 // Members (project-scoped)
 // =======================
 export const MEMBERS = {
-  LIST: (project_id: string) => `/members/project/${project_id}`,              // GET
-  ADD: (project_id: string) => `/members/project/${project_id}`,               // POST
-  SEARCH_USERS: (project_id: string) => `/members/project/${project_id}/search-users`, // GET
-  UPDATE: (project_id: string, user_id: string) => `/members/project/${project_id}/${user_id}`, // PUT
-  REMOVE: (project_id: string, user_id: string) => `/members/project/${project_id}/${user_id}`, // DELETE
+  MY_ROLE: (project_id: string) => `/members/my-role/${project_id}`, // GET
+  LIST: (project_id: string) => `/members/project/${project_id}`, // GET
+  ADD: (project_id: string) => `/members/project/${project_id}`, // POST
+  SEARCH_USERS: (project_id: string) =>
+    `/members/project/${project_id}/search-users`, // GET
+  UPDATE: (project_id: string, user_id: string) =>
+    `/members/project/${project_id}/${user_id}`, // PUT
+  REMOVE: (project_id: string, user_id: string) =>
+    `/members/project/${project_id}/${user_id}`, // DELETE
 } as const;
 
 // =======================
